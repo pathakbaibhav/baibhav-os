@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { pathFor, titleFor, type Route } from "@/lib/routes";
 import { Icon } from "@/components/Icon";
 import { AppContent, windowTitle } from "@/components/apps";
 import { APPS, ICONS, LAUNCHPAD_ORDER, type AppId } from "@/lib/apps";
@@ -24,8 +25,16 @@ function Tile({ id, size = 58 }: { id: AppId; size?: number }) {
   );
 }
 
-export function Phone() {
-  const [app, setApp] = useState<{ id: AppId; params: Record<string, string> } | null>(null);
+export function Phone({ initial }: { initial: Route | null }) {
+  const [app, setApp] = useState<{ id: AppId; params: Record<string, string> } | null>(
+    initial ? { id: initial.app, params: initial.params } : null,
+  );
+  const path = pathFor(app?.id ?? null, app?.params);
+  const title = titleFor(app ? { app: app.id, params: app.params } : null);
+  useEffect(() => {
+    if (window.location.pathname !== path) window.history.replaceState(window.history.state, "", path);
+    document.title = title;
+  }, [path, title]);
   const [searching, setSearching] = useState(false);
   const [q, setQ] = useState("");
   const results = search(q);

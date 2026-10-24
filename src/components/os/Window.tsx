@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { windowTitle } from "@/components/apps";
 import { APPS } from "@/lib/apps";
 import { useOS } from "@/lib/store";
@@ -11,8 +11,14 @@ const SNAP_EDGE = 6;
 export function Window({ win, children }: { win: Win; children: ReactNode }) {
   const { focused, focus, close, minimize, toggleMaximize, move, snap, resize } = useOS();
   const drag = useRef<{ dx: number; dy: number } | null>(null);
+  const root = useRef<HTMLElement>(null);
   const isFocused = focused === win.id;
   const app = APPS[win.id];
+
+  // Move keyboard focus into a window when it opens, so Tab continues inside the app.
+  useEffect(() => {
+    root.current?.focus({ preventScroll: true });
+  }, []);
 
   const onTitlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     focus(win.id);
@@ -48,9 +54,11 @@ export function Window({ win, children }: { win: Win; children: ReactNode }) {
 
   return (
     <section
+      ref={root}
+      tabIndex={-1}
       aria-label={`${app.label} window`}
       onPointerDown={() => focus(win.id)}
-      className="anim-win absolute flex flex-col overflow-hidden border border-line bg-window backdrop-blur-[28px] backdrop-saturate-[140%]"
+      className="anim-win absolute flex flex-col overflow-hidden outline-none border border-line bg-window backdrop-blur-[28px] backdrop-saturate-[140%]"
       style={{
         left: win.x,
         top: win.y,

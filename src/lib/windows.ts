@@ -132,6 +132,41 @@ export function moveWindow(s: WMState, id: AppId, x: number, y: number, vp: View
   return patch(s, id, { x: Math.round(cx), y: Math.round(cy), ...size });
 }
 
+/** ⌥` : bring the bottom-most visible window to the front, so repeated presses visit every window. */
+export function cycleFocus(s: WMState): WMState {
+  const visible = Object.values(s.windows).filter((w): w is Win => !!w && !w.minimized);
+  if (visible.length < 2) return s;
+  const bottom = visible.reduce((a, b) => (b.z < a.z ? b : a));
+  return focusWindow(s, bottom.id);
+}
+
+/** After the browser window shrinks, pull every window back inside it. */
+export function fitToViewport(s: WMState, vp: Viewport): WMState {
+  let changed = false;
+  const windows = { ...s.windows };
+  for (const w of Object.values(s.windows)) {
+    if (!w) continue;
+    let next: Rect;
+    if (w.maximized) {
+      next = { x: 0, y: MENU_H, w: vp.w, h: vp.h - MENU_H };
+    } else {
+      const width = Math.max(MIN_W, Math.min(w.w, vp.w));
+      const height = Math.max(MIN_H, Math.min(w.h, vp.h - MENU_H));
+      next = {
+        w: width,
+        h: height,
+        x: Math.max(0, Math.min(w.x, vp.w - width)),
+        y: Math.max(MENU_H, Math.min(w.y, vp.h - height)),
+      };
+    }
+    if (next.x !== w.x || next.y !== w.y || next.w !== w.w || next.h !== w.h) {
+      windows[w.id] = { ...w, ...next };
+      changed = true;
+    }
+  }
+  return changed ? { ...s, windows } : s;
+}
+
 export function resizeWindow(s: WMState, id: AppId, width: number, height: number, vp: Viewport): WMState {
   const w = s.windows[id];
   if (!w) return s;

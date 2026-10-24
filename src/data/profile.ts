@@ -4,6 +4,7 @@
 export const PROFILE = {
   name: "Baibhav Pathak",
   role: "Backend Engineer · Systems, APIs & IoT.",
+  headline: "I build backend systems that ship, scale and stay up.",
   location: "Boston, MA",
   email: "pathak.ba@northeastern.edu",
   github: "https://github.com/pathakbaibhav",

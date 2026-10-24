@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AppId } from "./apps";
+import { SETTINGS_KEY, type Accent, type Theme } from "./theme";
 import * as wm from "./windows";
 
 const viewport = (): wm.Viewport =>
@@ -20,6 +21,8 @@ type OSState = wm.WMState & {
   move: (id: AppId, x: number, y: number) => void;
   resize: (id: AppId, w: number, h: number) => void;
   setParams: (id: AppId, params: Record<string, string>) => void;
+  cycle: () => void;
+  fit: () => void;
   setLaunchpad: (open: boolean, spotlight?: boolean) => void;
 };
 
@@ -40,17 +43,12 @@ export const useOS = create<OSState>()((set) => ({
       const w = s.windows[id];
       return w ? { windows: { ...s.windows, [id]: { ...w, params: { ...w.params, ...params } } } } : {};
     }),
+  cycle: () => set((s) => wm.cycleFocus(s)),
+  fit: () => set((s) => wm.fitToViewport(s, viewport())),
   setLaunchpad: (open, spotlight = false) => set({ launchpad: open, spotlight: open && spotlight }),
 }));
 
-export type Theme = "dark" | "light" | "auto";
-export const ACCENTS = {
-  Cyan: { dark: "#7FD4E8", light: "#1C84AA" },
-  Amber: { dark: "#F4A766", light: "#B4621F" },
-  Violet: { dark: "#A78BFA", light: "#6D4FD8" },
-  Green: { dark: "#6EE7B7", light: "#1F8A63" },
-} as const;
-export type Accent = keyof typeof ACCENTS;
+export { ACCENTS, type Accent, type Theme } from "./theme";
 
 type SettingsState = {
   theme: Theme;
@@ -71,6 +69,6 @@ export const useSettings = create<SettingsState>()(
       tour: true,
       set: (patch) => set(patch),
     }),
-    { name: "baibhavos-settings" },
+    { name: SETTINGS_KEY },
   ),
 );

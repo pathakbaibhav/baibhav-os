@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { APPS, LAUNCHPAD_ORDER } from "@/lib/apps";
-import { useOS } from "@/lib/store";
-import { startRecruiterTour } from "@/components/os/ContextMenu";
+import { commands } from "@/lib/commands";
 import { RailDoc, Section, btnGhost, btnSolid, type AppProps } from "./ui";
 
 const SECTIONS = [
@@ -22,35 +21,20 @@ const STEPS = [
   { t: "Make it yours", x: "Open Settings to switch light or dark, pick an accent color, or turn motion effects off." },
 ];
 
-const APP_DESCRIPTIONS: Record<string, string> = {
-  about: "Who I am: overview, journey, what drives me, what I am doing now.",
-  projects: "Filterable index of my work, with a full case study for each project.",
-  resume: "Read it in the browser, or switch to the PDF and download it.",
-  skills: "What I use, grouped and rated by how deep I go with each tool.",
-  terminal: "A working shell. Try help, projects or route park-street harvard.",
-  lab: "Live status, latency and traffic for the APIs I run.",
-  github: "My contribution graph, recent commits and pinned repositories, pulled live.",
-  writing: "Build logs and deep dives on the projects.",
-  contact: "Send me a message, or grab my email and links.",
-  settings: "Theme, accent color, wallpaper, sound and motion.",
-  help: "You are here.",
-  arcade: "Small games, for when you need a break.",
-};
-
-// ⌘T / ⌘W belong to the browser, so baibhavOS uses ⌥ for those.
+// ⌘T / ⌘W / ⌘` belong to the browser, so baibhavOS uses ⌥ for those.
 const KEYS = [
   { d: "Search apps and projects", k: "⌘K" },
   { d: "Open Launchpad", k: "F4" },
   { d: "New terminal", k: "⌥T" },
   { d: "Close window", k: "⌥W" },
+  { d: "Cycle windows", k: "⌥`" },
   { d: "Toggle light / dark", k: "⇧⌘L" },
-  { d: "Snap window left / right", k: "drag to edge" },
+  { d: "Snap window left / right", k: "⌃⌥← / →" },
   { d: "Maximize window", k: "double-click title" },
   { d: "Open Help", k: "?" },
 ];
 
 export function Help({ params, setParams }: AppProps) {
-  const open = useOS((s) => s.open);
   const [step, setStep] = useState(0);
   const s = STEPS[step];
   const last = step === STEPS.length - 1;
@@ -94,7 +78,7 @@ export function Help({ params, setParams }: AppProps) {
         </div>
         <button
           type="button"
-          onClick={() => startRecruiterTour(open)}
+          onClick={commands.recruiterTour}
           className="mt-4 cursor-pointer rounded-xl border border-[rgba(244,167,102,0.35)] bg-[rgba(244,167,102,0.08)] px-4 py-3 text-left text-sm text-warm"
         >
           Recruiter in a hurry? Start the 30-second tour: About Me → Projects → Resume, opened for you →
@@ -106,7 +90,7 @@ export function Help({ params, setParams }: AppProps) {
           {LAUNCHPAD_ORDER.map((id) => (
             <div key={id} className="flex gap-3.5 border-t border-hair py-3">
               <span className="w-[120px] flex-none text-sm font-semibold">{APPS[id].label}</span>
-              <span className="text-[13px] leading-normal text-fg2">{APP_DESCRIPTIONS[id]}</span>
+              <span className="text-[13px] leading-normal text-fg2">{id === "help" ? "You are here." : APPS[id].blurb}</span>
             </div>
           ))}
         </div>

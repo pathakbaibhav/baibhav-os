@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { SITE_DESCRIPTION, SITE_URL, titleFor } from "@/lib/routes";
+import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -15,8 +17,11 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "baibhavOS · Baibhav Pathak",
-  description: "Baibhav Pathak, backend engineer: systems, APIs and IoT. A portfolio built as a small operating system.",
+  metadataBase: new URL(SITE_URL),
+  title: titleFor(null),
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", siteName: "baibhavOS", title: titleFor(null), description: SITE_DESCRIPTION, url: "/" },
 };
 
 export const viewport: Viewport = {
@@ -30,6 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className={`${interTight.variable} ${jetbrains.variable}`}>{children}</body>
     </html>
   );

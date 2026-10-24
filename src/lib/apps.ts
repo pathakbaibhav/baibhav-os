@@ -20,6 +20,7 @@ export type AppMeta = {
   color: string; // Launchpad / phone tile color
   size: { w: number; h: number };
   ready: boolean; // false → "coming soon" window
+  blurb: string; // one line for Help and the page <meta> description
 };
 
 export const ICONS = {
@@ -53,22 +54,23 @@ const app = (
   color: string,
   w: number,
   h: number,
+  blurb: string,
   ready = true,
-): AppMeta => ({ id, label, title: `${label}.app`, icon: ICONS[id], color, size: { w, h }, ready });
+): AppMeta => ({ id, label, title: `${label}.app`, icon: ICONS[id], color, size: { w, h }, ready, blurb });
 
 export const APPS: Record<AppId, AppMeta> = {
-  about: app("about", "About Me", "#2F6FED", 1080, 700),
-  projects: app("projects", "Projects", "#E8893C", 1120, 700),
-  resume: app("resume", "Resume", "#D9A43A", 520, 360, false),
-  skills: app("skills", "Skills", "#8B6CF0", 520, 360, false),
-  terminal: app("terminal", "Terminal", "#2B3140", 880, 580),
-  lab: app("lab", "Lab", "#1C9DB8", 1120, 700),
-  github: app("github", "GitHub", "#2D9C6A", 520, 360, false),
-  writing: app("writing", "Writing", "#C2557A", 520, 360, false),
-  contact: app("contact", "Contact", "#D9506A", 560, 440),
-  settings: app("settings", "Settings", "#5A6272", 800, 640),
-  help: app("help", "Help", "#C9862E", 1080, 700),
-  arcade: app("arcade", "Arcade", "#3BA55C", 520, 360, false),
+  about: app("about", "About Me", "#2F6FED", 1080, 700, "Who I am: overview, journey, what drives me, what I am doing now."),
+  projects: app("projects", "Projects", "#E8893C", 1120, 700, "Filterable index of my work, with a full case study for each project."),
+  resume: app("resume", "Resume", "#D9A43A", 520, 360, "Read it in the browser, or switch to the PDF and download it.", false),
+  skills: app("skills", "Skills", "#8B6CF0", 520, 360, "What I use, grouped and rated by how deep I go with each tool.", false),
+  terminal: app("terminal", "Terminal", "#2B3140", 880, 580, "A working shell. Try help, projects or route park-street harvard."),
+  lab: app("lab", "Lab", "#1C9DB8", 1120, 700, "Live status, latency and traffic for the APIs I run."),
+  github: app("github", "GitHub", "#2D9C6A", 520, 360, "My contribution graph, recent commits and pinned repositories, pulled live.", false),
+  writing: app("writing", "Writing", "#C2557A", 520, 360, "Build logs and deep dives on the projects.", false),
+  contact: app("contact", "Contact", "#D9506A", 560, 440, "Send me a message, or grab my email and links."),
+  settings: app("settings", "Settings", "#5A6272", 800, 640, "Theme, accent color, wallpaper, sound and motion."),
+  help: app("help", "Help", "#C9862E", 1080, 700, "How baibhavOS works: a quick tour, every app, shortcuts and phone tips."),
+  arcade: app("arcade", "Arcade", "#3BA55C", 520, 360, "Small games, for when you need a break.", false),
 };
 
 export const LAUNCHPAD_ORDER: AppId[] = [

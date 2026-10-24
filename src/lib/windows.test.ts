@@ -3,7 +3,9 @@ import {
   MENU_H,
   MIN_W,
   closeWindow,
+  cycleFocus,
   emptyWM,
+  fitToViewport,
   focusWindow,
   minimizeWindow,
   moveWindow,
@@ -90,6 +92,33 @@ describe("window manager", () => {
     let s = openWindow(emptyWM, "about", vp);
     s = resizeWindow(s, "about", 10, 10, vp);
     expect(s.windows.about!.w).toBe(MIN_W);
+  });
+
+  it("cycling focus visits every visible window, skipping minimized ones", () => {
+    let s = openWindow(emptyWM, "about", vp);
+    s = openWindow(s, "help", vp);
+    s = openWindow(s, "terminal", vp);
+    s = minimizeWindow(s, "help");
+    s = focusWindow(s, "terminal");
+    s = cycleFocus(s);
+    expect(s.focused).toBe("about");
+    s = cycleFocus(s);
+    expect(s.focused).toBe("terminal");
+    expect(cycleFocus(openWindow(emptyWM, "about", vp)).focused).toBe("about");
+  });
+
+  it("fits windows back inside a smaller viewport", () => {
+    let s = openWindow(emptyWM, "projects", vp);
+    s = moveWindow(s, "projects", 1200, 700, vp);
+    s = openWindow(s, "about", vp);
+    s = toggleMaximize(s, "about", vp);
+    const small = { w: 1000, h: 700 };
+    s = fitToViewport(s, small);
+    const p = s.windows.projects!;
+    expect(p.x + p.w).toBeLessThanOrEqual(small.w);
+    expect(p.y + p.h).toBeLessThanOrEqual(small.h);
+    expect(s.windows.about).toMatchObject({ x: 0, y: MENU_H, w: small.w, h: small.h - MENU_H });
+    expect(fitToViewport(s, small)).toBe(s);
   });
 
   it("ignores actions on windows that are not open", () => {

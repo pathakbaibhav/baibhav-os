@@ -1,8 +1,7 @@
 "use client";
 
 import { CURRENTLY, DRIVES, FACTS, JOURNEY, PROFILE } from "@/data/profile";
-import { useOS } from "@/lib/store";
-import { startRecruiterTour } from "@/components/os/ContextMenu";
+import { commands } from "@/lib/commands";
 import { RailDoc, Section, btnGhost, btnSolid, type AppProps } from "./ui";
 
 const SECTIONS = [
@@ -14,7 +13,6 @@ const SECTIONS = [
 ];
 
 export function About({ params, setParams }: AppProps) {
-  const open = useOS((s) => s.open);
   return (
     <RailDoc
       sections={SECTIONS}
@@ -23,7 +21,7 @@ export function About({ params, setParams }: AppProps) {
       footer={
         <div className="rounded-xl border border-hair p-3 text-xs leading-normal text-muted">
           Short on time?{" "}
-          <button type="button" className="cursor-pointer text-accent" onClick={() => startRecruiterTour(open)}>
+          <button type="button" className="cursor-pointer text-accent" onClick={commands.recruiterTour}>
             Take the recruiter tour →
           </button>
         </div>
@@ -41,7 +39,7 @@ export function About({ params, setParams }: AppProps) {
           </div>
           <div className="flex flex-1 flex-col gap-3.5">
             <h1 className="text-[clamp(28px,4cqw,38px)] font-extrabold leading-tight">
-              Hi, I&apos;m Baibhav. I build backend systems that ship, scale and stay up.
+              Hi, I&apos;m Baibhav. {PROFILE.headline}
             </h1>
             <p className="text-base leading-[1.7] text-fg2">
               I&apos;m a software engineer who works on the parts people don&apos;t see: control-plane services, APIs, data pipelines
