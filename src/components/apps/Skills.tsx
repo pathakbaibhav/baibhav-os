@@ -2,10 +2,46 @@
 
 import { SKILLS } from "@/data/skills";
 import { usageOf } from "@/lib/skills";
+import { iconFor, luminance } from "@/lib/skill-icons";
 import { useOS } from "@/lib/store";
 import type { AppProps } from "./ui";
 
 // Every skill, grouped; pick one to see the jobs and projects that used it.
+
+/** A skill's logo (Simple Icons, filled) or neutral glyph (stroked), in the current text colour. */
+function SkillGlyph({ skill, size = 16, color = "currentColor" }: { skill: string; size?: number; color?: string }) {
+  const icon = iconFor(skill);
+  return icon.kind === "brand" ? (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill={color} className="flex-none">
+      <path d={icon.path} />
+    </svg>
+  ) : (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="flex-none">
+      <path d={icon.path} />
+    </svg>
+  );
+}
+
+/** The selected skill's big tile: the brand's own colour, with a logo that stays readable on it. */
+function SkillTile({ skill }: { skill: string }) {
+  const icon = iconFor(skill);
+  if (icon.kind === "glyph") {
+    return (
+      <span className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl border border-line bg-card text-accent">
+        <SkillGlyph skill={skill} size={28} />
+      </span>
+    );
+  }
+  // Near-black brands (Next.js, Express, GitHub) get a light tile so they don't vanish on the dark window.
+  const dark = luminance(icon.hex) < 0.04;
+  const bg = dark ? "#F2F4F8" : icon.hex;
+  const fg = luminance(bg) > 0.45 ? "#0A0D14" : "#FFFFFF";
+  return (
+    <span className="flex h-14 w-14 flex-none items-center justify-center rounded-2xl shadow-[0_8px_24px_var(--shadow)]" style={{ background: bg }}>
+      <SkillGlyph skill={skill} size={28} color={fg} />
+    </span>
+  );
+}
 
 export function Skills({ params, setParams }: AppProps) {
   const open = useOS((s) => s.open);
@@ -40,6 +76,7 @@ export function Skills({ params, setParams }: AppProps) {
                           : { borderColor: "var(--line)", color: "var(--fg)" }
                       }
                     >
+                      <SkillGlyph skill={s} size={15} />
                       {s}
                       {used > 0 && <span className="font-mono text-[10px] text-muted">{used}</span>}
                     </button>
@@ -56,9 +93,10 @@ export function Skills({ params, setParams }: AppProps) {
         aria-live="polite"
         className="flex flex-none flex-col gap-4 border-t border-hair px-6 py-6 @3xl:w-[340px] @3xl:overflow-y-auto @3xl:border-l @3xl:border-t-0"
       >
-        <div>
+        <div className="flex flex-col gap-3">
+          <SkillTile skill={selected} />
           <div className="eyebrow">Used in</div>
-          <h2 className="mt-1.5 text-2xl font-extrabold">{selected}</h2>
+          <h2 className="-mt-1.5 text-2xl font-extrabold">{selected}</h2>
           <p className="mt-1 font-mono text-xs text-muted">
             {count === 0 ? "on my resume; not linked to a job or project here yet" : `${count} place${count === 1 ? "" : "s"} in this portfolio`}
           </p>
