@@ -48,7 +48,7 @@ Text in `[brackets]` in `src/data/` is waiting for real content: the "Now" line,
 | 1 | OS core: desktop, menu bar, dock, window manager, dark/light, a URL per app ✅ |
 | 2 | Look and feel: 3D code-pane wallpaper, boot screen, motion ✅ |
 | 3 | Content apps: About, Projects + case studies, Resume, Skills, Contact ✅ |
-| 4 | System apps: Help + tours, Settings, Launchpad, Spotlight, right-click menu |
-| 5 | Phone layout |
+| 4 | System apps: Help + tours, Settings, Launchpad, Spotlight, right-click menu ✅ |
+| 5 | Phone layout ✅ |
 | 6 | Live data: terminal + Lab on real APIs, GitHub, Writing, Arcade |
 | 7 | Launch: performance, accessibility, link previews, domain |

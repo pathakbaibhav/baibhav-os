@@ -191,9 +191,10 @@ const CHIPS: [string, number, number, number, Tone][] = [
 ];
 
 /** Leans the stack toward the pointer by writing --px / --py (-1…1) on the element. */
-function useParallax() {
+function useParallax(enabled: boolean) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (!enabled) return;
     let frame = 0;
     const onMove = (e: PointerEvent) => {
       if (frame || !motionOK()) return;
@@ -210,13 +211,13 @@ function useParallax() {
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [enabled]);
   return ref;
 }
 
-/** The 3D pane stack on its own 1440×900 stage. */
-function Panes({ C }: { C: Palette }) {
-  const tilt = useParallax();
+/** The 3D pane stack on its own 1440×900 stage. `lite` (phones) skips the pointer tilt and the float. */
+function Panes({ C, lite = false }: { C: Palette; lite?: boolean }) {
+  const tilt = useParallax(!lite);
   return (
     <div style={{ ...abs(0, 0, 1440, 900), perspective: 1800 }}>
       <div
@@ -233,7 +234,7 @@ function Panes({ C }: { C: Palette }) {
           transition: "transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1)",
         }}
       >
-        <div style={{ ...abs(0, 0, PANE_W, PANE_H), transformStyle: "preserve-3d", animation: "pane-float 12s ease-in-out infinite" }}>
+        <div style={{ ...abs(0, 0, PANE_W, PANE_H), transformStyle: "preserve-3d", animation: lite ? undefined : "pane-float 12s ease-in-out infinite" }}>
           <BackPane C={C} x={200} y={-120} z={-320} seed={3} />
           <BackPane C={C} x={100} y={-60} z={-160} seed={7} />
           <FrontPane C={C} />
@@ -245,7 +246,7 @@ function Panes({ C }: { C: Palette }) {
                   fontFamily: "var(--font-mono)", fontSize: 14, color: C[tone], background: C.chipBg,
                   border: `1px solid color-mix(in srgb, ${C[tone]} 40%, transparent)`,
                   boxShadow: `0 0 24px color-mix(in srgb, ${C[tone]} 20%, transparent)`,
-                  animation: `chip-drift ${6 + i * 1.5}s ease-in-out ${-i * 1.7}s infinite`,
+                  animation: lite ? undefined : `chip-drift ${6 + i * 1.5}s ease-in-out ${-i * 1.7}s infinite`,
                 }}
               >
                 {t}
@@ -290,7 +291,7 @@ export function PhoneWallpaper() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[340px] overflow-hidden">
       <div style={{ position: "absolute", left: "50%", top: -40, width: 1440, height: 900, transform: "translateX(-50%) scale(0.5)", transformOrigin: "50% 0" }}>
-        {circuit ? <CircuitStage light={false} /> : <Panes C={PALETTES.dark} />}
+        {circuit ? <CircuitStage light={false} /> : <Panes C={PALETTES.dark} lite />}
       </div>
     </div>
   );

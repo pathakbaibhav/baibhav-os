@@ -29,7 +29,8 @@ export function useThemeSync() {
   return resolved;
 }
 
-const mobileQuery = "(max-width: 767px)";
+// Narrow screens, and phones held sideways (short and touch-first), get the phone layout.
+const mobileQuery = "(max-width: 767px), (pointer: coarse) and (max-height: 500px)";
 export function useIsPhone(): boolean {
   return useSyncExternalStore(
     (cb) => {

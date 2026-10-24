@@ -30,6 +30,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#070A11",
+  // Lets the phone layout paint under the notch and home bar; it pads itself with env(safe-area-inset-*).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

@@ -44,7 +44,7 @@ export function Lab() {
           <h1 className="mt-1.5 text-[28px] font-extrabold">Things I run, measured live.</h1>
         </div>
         <span className="rounded-lg border border-dashed border-[rgba(244,167,102,0.5)] px-2.5 py-1.5 font-mono text-[11px] text-warm">
-          SAMPLE DATA · wired to live APIs in phase 5
+          SAMPLE DATA · live numbers coming soon
         </span>
       </div>
 

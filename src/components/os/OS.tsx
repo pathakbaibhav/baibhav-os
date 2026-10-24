@@ -91,7 +91,7 @@ export function OS({ initial, children }: { initial: Route | null; children?: Re
   useEffect(() => {
     // A deep link goes straight to its window: no boot screen in the way.
     if (initial) {
-      if (!isPhone) useOS.getState().open(initial.app, initial.params);
+      useOS.getState().open(initial.app, initial.params);
       setBooted(true);
       return;
     }
@@ -113,7 +113,7 @@ export function OS({ initial, children }: { initial: Route | null; children?: Re
 
   if (!mounted) return <div className="fixed inset-0 bg-bg">{children}</div>;
   if (!booted) return <Boot onEnter={enter} />;
-  if (isPhone) return <Phone initial={initial} />;
+  if (isPhone) return <Phone />;
   return <Desktop light={resolved === "light"} hint={!initial} />;
 }
 

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { TOUR_STEPS } from "./Tour";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { LAUNCHPAD_ORDER, APPS } from "@/lib/apps";
@@ -61,22 +61,68 @@ describe("desktop smoke test", () => {
     expect(errors).toEqual([]);
   });
 
-  it("on a phone, every app opens full screen and Back returns home", () => {
-    const desktop = window.matchMedia;
-    window.matchMedia = (query: string) => ({ ...desktop(query), matches: query.includes("max-width") });
-    sessionStorage.setItem("baibhavos-booted", "1"); // skip the boot screen
-    try {
+  describe("on a phone", () => {
+    let desktop: typeof window.matchMedia;
+    beforeEach(() => {
+      desktop = window.matchMedia;
+      window.matchMedia = (query: string) => ({ ...desktop(query), matches: query.includes("max-width") });
+      sessionStorage.setItem("baibhavos-booted", "1"); // skip the boot screen
+    });
+    afterEach(() => {
+      window.matchMedia = desktop;
+    });
+    const tap = (name: string) => act(() => screen.getAllByRole("button", { name: new RegExp(`^${name}$`) })[0].click());
+
+    it("every app opens full screen and Back returns home", async () => {
       render(<OS initial={null} />);
       for (const id of LAUNCHPAD_ORDER) {
-        act(() => screen.getAllByRole("button", { name: new RegExp(`^${APPS[id].label}$`) })[0].click());
+        tap(APPS[id].label);
         expect(window.location.pathname).toBe(`/${id}`);
-        act(() => screen.getByRole("button", { name: "Back to home screen" }).click());
-        expect(window.location.pathname).toBe("/");
+        tap("Back"); // history.back(): the browser delivers popstate a moment later
+        await waitFor(() => expect(window.location.pathname).toBe("/"));
+        expect(screen.getByRole("region", { name: "Home" })).toBeTruthy();
       }
       expect(errors).toEqual([]);
-    } finally {
-      window.matchMedia = desktop;
-    }
+    });
+
+    it("links between apps stack, and Back returns to the previous app", () => {
+      render(<OS initial={null} />);
+      tap("Resume");
+      const row = screen.getAllByRole("button").find((b) => b.textContent?.includes("Case study →"))!;
+      act(() => row.click());
+      expect(window.location.pathname).toBe("/projects/asl-engine");
+      expect(screen.getByText("Left-handed signers broke it first.")).toBeTruthy();
+      act(() => useOS.getState().close(useOS.getState().focused!)); // what Back does once history is unwound
+      expect(window.location.pathname).toBe("/resume");
+      expect(screen.getByRole("tab", { name: "Read" })).toBeTruthy();
+      expect(errors).toEqual([]);
+    });
+
+    it("the browser's own back gesture closes the app", () => {
+      render(<OS initial={null} />);
+      tap("Terminal");
+      expect(window.location.pathname).toBe("/terminal");
+      act(() => window.dispatchEvent(new PopStateEvent("popstate")));
+      expect(useOS.getState().focused).toBeNull();
+      expect(screen.getByRole("region", { name: "Home" })).toBeTruthy();
+      expect(errors).toEqual([]);
+    });
+
+    it("a deep link opens its app, and Home closes everything", () => {
+      render(<OS initial={{ app: "skills", params: {} }} />);
+      expect(screen.getByRole("complementary", { name: "Where Python was used" })).toBeTruthy();
+      tap("Home screen");
+      expect(Object.keys(useOS.getState().windows)).toHaveLength(0);
+      expect(window.location.pathname).toBe("/");
+      expect(errors).toEqual([]);
+    });
+
+    it("the App Library groups every app", () => {
+      render(<OS initial={null} />);
+      const library = screen.getByRole("region", { name: "App Library" });
+      for (const id of LAUNCHPAD_ORDER) expect(library.textContent).toContain(APPS[id].label);
+      expect(errors).toEqual([]);
+    });
   });
 
   it("turning motion off in Settings makes closing instant", () => {
