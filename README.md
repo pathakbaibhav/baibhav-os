@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# baibhavOS
 
-## Getting Started
+Baibhav Pathak's portfolio, built as a small operating system that runs in the browser. It boots, opens apps in draggable glass windows, and turns into a phone home screen on small screens.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Dev server with hot reload |
+| `npm run build` | Production build |
+| `npm run check` | Lint, typecheck and unit tests (what CI runs, minus the build) |
+| `npm test` | Unit tests only (Vitest) |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Node 22 is pinned in `.nvmrc`; anything from Node 20 up works.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things live
 
-## Learn More
+```
+src/
+  app/              Next.js entry: layout, global tokens (globals.css), the single page
+  components/os/    The OS: boot, desktop, menu bar, dock, windows, Launchpad, phone, wallpaper
+  components/apps/  One file per app (About, Projects, Terminal, Lab, Settings, Help, Contact)
+  data/             All portfolio content: profile, projects + case studies, experience, skills
+  lib/              Framework-free logic: app registry, window manager, terminal, search, stores
+```
 
-To learn more about Next.js, take a look at the following resources:
+- **Content** lives only in `src/data/`. Change a project or a job there and every app, Spotlight and the terminal pick it up.
+- **Apps** are registered in `src/lib/apps.ts` (label, icon, colour, default size). Apps marked `ready: false` open a "coming soon" window.
+- **Window logic** is pure functions in `src/lib/windows.ts`, wrapped by a Zustand store in `src/lib/store.ts`, so it is unit-tested without React.
+- **Theme**: dark is the default; `<html data-theme="light">` switches the CSS tokens in `globals.css`. Settings persists theme, accent, motion and sound in `localStorage`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Placeholders
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Text in `[brackets]` in `src/data/` is waiting for real content: the "Now" line, the origin story in the About journey, the "Currently" rows, and the case-study demo GIF and "what didn't work" story.
 
-## Deploy on Vercel
+## Roadmap
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Phase | Scope |
+|---|---|
+| 0 | Project setup, content data, CI ✅ |
+| 1 | OS core: desktop, menu bar, dock, window manager, dark/light, a URL per app |
+| 2 | Look and feel: 3D code-pane wallpaper, boot screen, motion |
+| 3 | Content apps: About, Projects + case studies, Resume, Skills, Contact |
+| 4 | System apps: Help + tours, Settings, Launchpad, Spotlight, right-click menu |
+| 5 | Phone layout |
+| 6 | Live data: terminal + Lab on real APIs, GitHub, Writing, Arcade |
+| 7 | Launch: performance, accessibility, link previews, domain |
