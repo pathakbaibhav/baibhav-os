@@ -40,7 +40,7 @@ Specific gaps:
 
 ## Writing
 
-- [ ] **First posts** (2–3). Suggested topics: micro-batching the ASL API from 443 to 1,569 req/s; rerouting the subway graph around live closures; lessons from shipping 50+ automation tools at PPD.
+- [ ] **Writing**: posts come later (the app shows "first posts are in the works" until then).
 
 ## Contact form (Phase 6)
 
@@ -51,4 +51,5 @@ Specific gaps:
 
 - [ ] **Domain**: pick and buy (e.g. baibhav.dev, ~$12/yr), then set `NEXT_PUBLIC_SITE_URL`.
 - [ ] **Vercel**: connect your account to the GitHub repo.
+- [ ] **Analytics**: built in (Vercel Analytics, no cookies); turn on "Web Analytics" in the Vercel project after the first deploy.
 - [ ] **iCloud**: move the project out of `~/Documents` (it syncs to iCloud and creates duplicate " 2" files), e.g. to `~/Developer/baibhav-os`.

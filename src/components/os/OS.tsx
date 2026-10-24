@@ -10,6 +10,7 @@ import { Boot } from "./Boot";
 import { DesktopIcons, Dock, MenuBar, Widgets } from "./Chrome";
 import { ContextMenu } from "./ContextMenu";
 import { Launchpad } from "./Launchpad";
+import { PageViews } from "./PageViews";
 import { FirstVisitHint, Tour } from "./Tour";
 import { Phone } from "./Phone";
 import { Wallpaper } from "./Wallpaper";
@@ -74,6 +75,7 @@ function useUrlSync() {
     if (window.location.pathname !== path) window.history.replaceState(window.history.state, "", path);
     document.title = title;
   }, [path, title]);
+  return path;
 }
 
 /**
@@ -119,7 +121,7 @@ export function OS({ initial, children }: { initial: Route | null; children?: Re
 
 function Desktop({ light, hint }: { light: boolean; hint: boolean }) {
   useHotkeys();
-  useUrlSync();
+  const path = useUrlSync();
   const scale = useCoverScale();
   useEffect(() => {
     const fit = () => useOS.getState().fit();
@@ -155,6 +157,7 @@ function Desktop({ light, hint }: { light: boolean; hint: boolean }) {
             ),
         )}
       </div>
+      <PageViews path={path} />
       {launchpad && <Launchpad />}
       {hint && tour === null && <FirstVisitHint />}
       {tour !== null && <Tour step={tour} />}

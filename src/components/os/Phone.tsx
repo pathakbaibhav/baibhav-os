@@ -9,6 +9,7 @@ import { search } from "@/lib/search";
 import { useOS } from "@/lib/store";
 import type { Win } from "@/lib/windows";
 import { PROFILE } from "@/data/profile";
+import { PageViews } from "./PageViews";
 import { PhoneWallpaper } from "./Wallpaper";
 
 // Phone layout. It runs on the same window store as the desktop: the focused
@@ -87,9 +88,22 @@ export function Phone() {
   const fw = focused ? windows[focused] : undefined;
   const current = fw && !fw.minimized ? fw : undefined;
   const back = usePhoneHistory(current);
+  const views = <PageViews path={pathFor(current?.id ?? null, current?.params)} />;
 
-  if (current) return <AppScreen key={current.id} win={current} onBack={back} onHome={() => Object.keys(windows).forEach((id) => close(id as AppId))} setParams={setParams} />;
-  return <Home onLaunch={open} />;
+  if (current) {
+    return (
+      <>
+        <AppScreen key={current.id} win={current} onBack={back} onHome={() => Object.keys(windows).forEach((id) => close(id as AppId))} setParams={setParams} />
+        {views}
+      </>
+    );
+  }
+  return (
+    <>
+      <Home onLaunch={open} />
+      {views}
+    </>
+  );
 }
 
 function AppScreen({

@@ -265,7 +265,7 @@ export const PROJECTS: Project[] = [
         { v: "12", l: "apps", c: "About, Projects, Resume, Skills, Terminal, Lab and more" },
         { v: "90+", l: "automated tests", c: "unit tests plus smoke tests that render the whole OS" },
         { v: "7,750", l: "routes in the browser", c: "my subway engine, ported to TypeScript, on live alerts" },
-        { v: "0", l: "cookies or trackers", c: "settings stay in the visitor's browser" },
+        { v: "0", l: "cookies", c: "anonymous page counts; settings stay in the browser" },
       ],
       overview:
         "Every part of a resume is an app here: windows open, drag, snap and minimise; Spotlight searches apps, projects, skills and actions; and every window has its own URL, so a case study can be linked to directly and read by search engines. On a phone the same OS becomes a home screen, with apps that open full screen and work with the phone's back gesture.",

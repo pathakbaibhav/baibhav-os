@@ -164,8 +164,8 @@ export function Settings({ params, setParams }: AppProps) {
 
       <Section id="privacy" n={4} title="Privacy">
         <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-fg2">
-          baibhavOS sets no cookies and runs no trackers. Your settings are saved only in this browser&apos;s local storage, and
-          nothing you do here is sent anywhere.
+          baibhavOS sets no cookies. Page views are counted anonymously with Vercel Analytics, which stores no personal data
+          and can&apos;t follow you across sites. Your settings are saved only in this browser&apos;s local storage.
         </p>
         <button type="button" onClick={reset} className={`${btnGhost} mt-4 cursor-pointer`}>
           Reset baibhavOS…
