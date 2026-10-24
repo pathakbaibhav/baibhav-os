@@ -6,7 +6,9 @@ import { APPS, type AppId } from "@/lib/apps";
 import { PROJECTS } from "@/data/projects";
 import type { Win } from "@/lib/windows";
 import { About } from "./About";
+import { Arcade } from "./Arcade";
 import { Contact } from "./Contact";
+import { GitHub } from "./GitHub";
 import { Help } from "./Help";
 import { Lab } from "./Lab";
 import { Projects } from "./Projects";
@@ -14,6 +16,7 @@ import { Resume } from "./Resume";
 import { Settings } from "./Settings";
 import { Skills } from "./Skills";
 import { Terminal } from "./Terminal";
+import { Writing } from "./Writing";
 import type { AppProps } from "./ui";
 
 function ComingSoon({ id }: { id: AppId }) {
@@ -43,6 +46,9 @@ const REGISTRY: Partial<Record<AppId, ComponentType<AppProps>>> = {
   settings: Settings,
   lab: Lab,
   contact: Contact,
+  github: GitHub,
+  writing: Writing,
+  arcade: Arcade,
 };
 
 export function AppContent({ id, ...props }: AppProps & { id: AppId }) {
@@ -55,6 +61,7 @@ export function windowTitle(win: Pick<Win, "id" | "params">): string {
     const p = PROJECTS.find((x) => x.num === win.params.sel);
     if (p) return `~/projects/${p.slug}`;
   }
+  if (win.id === "writing" && win.params.post) return `~/writing/${win.params.post}`;
   if (win.id === "terminal") return "baibhav@os — zsh";
   return APPS[win.id].label;
 }

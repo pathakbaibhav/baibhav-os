@@ -15,10 +15,31 @@ beforeAll(() => {
   // jsdom has no matchMedia; report a desktop-sized screen that allows motion.
   window.matchMedia = (query: string) =>
     ({ matches: false, media: query, addEventListener() {}, removeEventListener() {}, onchange: null, addListener() {}, removeListener() {}, dispatchEvent: () => false }) as MediaQueryList;
-  // jsdom doesn't lay out or scroll.
+  // jsdom doesn't lay out, scroll or draw.
   Element.prototype.scrollTo = () => {};
   Element.prototype.scrollIntoView = () => {};
+  HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
 });
+
+// The site's own API, faked: no network in tests.
+const GITHUB = {
+  ok: true, login: "pathakbaibhav", url: "https://github.com/pathakbaibhav", publicRepos: 15, followers: 2, fetchedAt: new Date().toISOString(),
+  repos: [{ name: "baibhav-os", description: "baibhavOS", language: "TypeScript", stars: 0, pushedAt: new Date().toISOString(), url: "u" }],
+  activity: [{ repo: "baibhav-os", at: new Date().toISOString(), text: 'pushed "Phase 6"' }],
+  contributions: { total: 43, days: [{ date: "2026-10-18", level: 1, count: 2 }, { date: "2026-10-19", level: 0, count: 0 }] },
+};
+let contactStatus = 503;
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+beforeEach(() => {
+  contactStatus = 503;
+  vi.stubGlobal("fetch", async (url: string) => {
+    if (url.startsWith("/api/github")) return json(GITHUB);
+    if (url.startsWith("/api/mbta/alerts")) return json({ ok: true, alerts: [], upstreamMs: 40, fetchedAt: new Date().toISOString() });
+    if (url.startsWith("/api/contact")) return json({ ok: contactStatus === 200 }, contactStatus);
+    throw new Error(`unexpected fetch ${url}`);
+  });
+});
+afterEach(() => vi.unstubAllGlobals());
 
 let errors: unknown[][];
 beforeEach(() => {
@@ -166,9 +187,11 @@ describe("desktop smoke test", () => {
     render(<OS initial={{ app: "resume", params: {} }} />);
     expect(screen.getByRole("tab", { name: "Read" }).getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("heading", { level: 1, name: "Baibhav Pathak" })).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: /Download PDF/ })[0].getAttribute("href")).toBe("/resume.pdf");
     act(() => screen.getByRole("tab", { name: "PDF" }).click());
     expect(screen.getByRole("tab", { name: "PDF" }).getAttribute("aria-selected")).toBe("true");
-    act(() => screen.getByRole("button", { name: "Open the Read view" }).click());
+    expect(screen.getByTitle("Resume (PDF)").getAttribute("src")).toMatch(/^\/resume\.pdf/);
+    act(() => screen.getByRole("tab", { name: "Read" }).click());
     expect(screen.getByRole("tab", { name: "Read" }).getAttribute("aria-selected")).toBe("true");
     expect(errors).toEqual([]);
   });
@@ -243,6 +266,58 @@ describe("desktop smoke test", () => {
     act(() => fireEvent.change(screen.getByRole("textbox", { name: "Search baibhavOS" }), { target: { value: "dark" } }));
     act(() => screen.getAllByRole("option").find((o) => o.textContent?.includes("ACTION"))!.querySelector("button")!.click());
     expect(document.documentElement.dataset.theme).not.toBe(theme);
+    expect(errors).toEqual([]);
+  });
+
+  it("GitHub shows the contribution calendar, repos and activity", async () => {
+    render(<OS initial={{ app: "github", params: {} }} />);
+    expect(await screen.findByRole("img", { name: "43 contributions in the last year" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Repositories" }).textContent).toContain("baibhav-os");
+    expect(screen.getByRole("region", { name: "Recent activity" }).textContent).toContain("Phase 6");
+    expect(errors).toEqual([]);
+  });
+
+  it("Lab shows live numbers from the API and benchmarks the route engine", async () => {
+    render(<OS initial={{ app: "lab", params: {} }} />);
+    await waitFor(() => expect(screen.getByRole("region", { name: "Subway closures today" }).textContent).toContain("No active subway alerts"));
+    await waitFor(() => expect(screen.getByRole("region", { name: "Route engine" }).textContent).toMatch(/µs/), { timeout: 5000 });
+    await waitFor(() => expect(screen.getByRole("region", { name: "Request log" }).textContent).toContain("/api/github"));
+    expect(errors).toEqual([]);
+  });
+
+  it("the terminal routes a real trip", async () => {
+    render(<OS initial={{ app: "terminal", params: {} }} />);
+    const input = screen.getByRole("textbox", { name: /baibhav@os/ });
+    act(() => fireEvent.change(input, { target: { value: "route park-street harvard" } }));
+    act(() => fireEvent.keyDown(input, { key: "Enter" }));
+    expect(await screen.findByText(/^Park Street → Harvard · \d+ min · 0 transfers$/)).toBeTruthy();
+    expect(await screen.findByText("live: no subway closures right now")).toBeTruthy();
+    expect(errors).toEqual([]);
+  });
+
+  it("Contact validates, then falls back to email and LinkedIn until the form is connected", async () => {
+    render(<OS initial={{ app: "contact", params: {} }} />);
+    expect(screen.getByRole("link", { name: "Message me on LinkedIn ↗" }).getAttribute("href")).toBe("https://www.linkedin.com/in/baibhavkp");
+    act(() => screen.getByRole("button", { name: "Send message" }).click());
+    expect(screen.getByText("Please add your name.")).toBeTruthy();
+    act(() => fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Ada" } }));
+    act(() => fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ada@example.com" } }));
+    act(() => fireEvent.change(screen.getByLabelText("Message"), { target: { value: "We'd love to talk about a backend role." } }));
+    act(() => screen.getByRole("button", { name: "Send message" }).click());
+    expect(await screen.findByText(/The form isn.t connected yet/)).toBeTruthy();
+    contactStatus = 200;
+    act(() => screen.getByRole("button", { name: "Send message" }).click());
+    expect(await screen.findByText("Message sent. Thank you!")).toBeTruthy();
+    expect(errors).toEqual([]);
+  });
+
+  it("Arcade starts from the keyboard and Writing lists what's coming", () => {
+    render(<OS initial={{ app: "arcade", params: {} }} />);
+    const board = screen.getByRole("application", { name: /Packet Snake board/ });
+    act(() => fireEvent.keyDown(board, { key: " " }));
+    expect(screen.queryByRole("button", { name: "Start" })).toBeNull();
+    act(() => useOS.getState().open("writing"));
+    expect(screen.getByRole("region", { name: "Coming soon" }).textContent).toContain("micro-batching");
     expect(errors).toEqual([]);
   });
 

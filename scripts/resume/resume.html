@@ -1,0 +1,113 @@
+<!doctype html>
+<!--
+  One-page resume for the Resume app's PDF view and Download link.
+  Build with: npm run resume   (prints this page to public/resume.pdf via headless Chrome)
+  No phone number on purpose: the site and repo are public.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Baibhav Pathak, Resume</title>
+<style>
+  @page { size: Letter; margin: 0.42in 0.5in; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Charter, "Bitstream Charter", Georgia, serif; font-size: 9.6pt; line-height: 1.26; color: #111; }
+  a { color: inherit; text-decoration: none; }
+  header { text-align: center; }
+  h1 { margin: 0; font-size: 21pt; font-weight: 400; font-variant: small-caps; letter-spacing: 0.04em; }
+  .contact { margin-top: 2pt; font-size: 9.2pt; }
+  .contact a { color: #1a4fd6; }
+  .contact span + span::before { content: "·"; margin: 0 6pt; color: #555; }
+  h2 { margin: 8pt 0 3pt; padding-bottom: 1pt; border-bottom: 0.7pt solid #111; font-size: 10.4pt; font-variant: small-caps; letter-spacing: 0.06em; font-weight: 700; }
+  .row { display: flex; justify-content: space-between; gap: 10pt; }
+  .row b { font-weight: 700; }
+  .row > b { flex: none; white-space: nowrap; }
+  .sub { font-style: italic; }
+  .entry { margin-top: 3.5pt; }
+  ul { margin: 1.5pt 0 0; padding-left: 13pt; }
+  li { margin: 0.6pt 0; }
+  .tech { font-style: italic; font-weight: 400; }
+  .skills p { margin: 0.8pt 0; }
+  .skills b { font-weight: 700; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Baibhav Pathak</h1>
+  <div class="contact">
+    <span><a href="mailto:pathak.ba@northeastern.edu">pathak.ba@northeastern.edu</a></span><span><a href="https://github.com/pathakbaibhav">github.com/pathakbaibhav</a></span><span><a href="https://www.linkedin.com/in/baibhavkp">linkedin.com/in/baibhavkp</a></span><span><a href="https://pathakbaibhav.github.io/Portfolio/" id="portfolio">Portfolio</a></span><span>Bangalore, India</span>
+  </div>
+</header>
+
+<h2>Summary</h2>
+<p style="margin:0">Senior Software Engineer specializing in backend systems, automation platforms and API development with Python, C++, Node.js and cloud technologies. Experienced in building scalable services, CI/CD workflows and data pipelines with cross-functional teams, delivering reliable, maintainable software.</p>
+
+<h2>Experience</h2>
+<div class="entry">
+  <div class="row"><span><b>Zoppler Systems</b> · <span class="sub">Senior Software Engineer · Bangalore, India</span></span><b>Oct 2026 – Present</b></div>
+  <div class="tech">C++, Python</div>
+</div>
+<div class="entry">
+  <div class="row"><span><b>IpserLabs</b> · <span class="sub">Software Engineer · Boston, USA</span></span><b>Sep 2025 – Jul 2026</b></div>
+  <ul>
+    <li>Designed and enhanced backend services for control-plane workflows in Python and Go, supporting <b>1K+ daily active users</b>.</li>
+    <li>Built secure REST APIs with <b>JWT authentication and role-based access control</b> for registration, resource configuration and interaction workflows.</li>
+    <li>Automated CI/CD with GitHub workflows and Python, speeding up deployments by <b>20%</b> across staging and production.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><span><b>PPD, part of Thermo Fisher Scientific</b> · <span class="sub">Software Engineer, Backend &amp; Automation · Bangalore, India</span></span><b>Jan 2021 – Aug 2023</b></div>
+  <ul>
+    <li>Built and deployed <b>50+ backend automation solutions</b> in Python, PowerShell and shell, serving <b>10,000+ users</b> globally, end to end from design to maintenance.</li>
+    <li>Developed REST APIs and data pipelines on AWS and Azure with QA, operations and 200+ end users, improving data accuracy by <b>35%</b> and operational efficiency by <b>30%</b>.</li>
+    <li>Led Azure SQL data extraction via Microsoft Graph API, ran Jenkins CI/CD, kept a <b>95% resolution rate</b> at third-level support and mentored junior engineers.</li>
+  </ul>
+</div>
+
+<h2>Education</h2>
+<div class="row"><span><b>Northeastern University</b> · <span class="sub">Master of Science in Internet of Things</span></span><b>Aug 2023 – May 2025</b></div>
+<div class="row"><span><b>Visvesvaraya Technological University</b> · <span class="sub">Bachelor of Technology in Computer Science</span></span><b>Aug 2016 – Sep 2020</b></div>
+
+<h2>Projects</h2>
+<div class="entry">
+  <div class="row"><span><b>baibhavOS, portfolio as a browser OS</b> | <span class="tech">Next.js, TypeScript, Zustand, Vitest</span></span><b>Oct 2026 – Present</b></div>
+  <ul>
+    <li>Window manager with 12 apps, a URL per app and a phone layout on one store; live MBTA and GitHub data through cached API routes; <b>90+ tests</b> in CI.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><span><b>Real-Time ASL Gesture Interpretation Engine</b> | <span class="tech">Python, Flask, TensorFlow, MediaPipe</span></span><b>Mar 2024 – Apr 2024</b></div>
+  <ul>
+    <li>Flask REST API serving a Random Forest + TensorFlow ensemble: <b>2.7 ms median inference</b>, <b>100% held-out accuracy</b> across 27 classes.</li>
+    <li>Scaled to <b>3.5× throughput</b> (443 → 1,569 req/s) and cut p95 latency by <b>57%</b> with micro-batching, gunicorn workers and an LRU cache.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><span><b>Boston Subway Network Optimization &amp; Visualization</b> | <span class="tech">Python, FastAPI, BeautifulSoup</span></span><b>Feb 2024 – Mar 2024, Oct 2026</b></div>
+  <ul>
+    <li>FastAPI route engine over 125 MBTA stations: Dijkstra across all <b>7,750 station pairs</b>, <b>9× faster</b> and <b>62% less memory</b> than the matrix version.</li>
+    <li>Live-alert pipeline (MBTA V3 API + scraper) reroutes trips around closures; LRU route cache with a <b>77% hit rate</b>.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><span><b>Vision Transformer SoC System</b> | <span class="tech">C++, SystemC, FPGA</span></span><b>Nov 2025 – Dec 2025</b></div>
+  <ul>
+    <li>Edge image classifier with parallel patch embeddings and fixed-point arithmetic, cutting inference latency by <b>30%</b>; FPGA feasibility studies.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><span><b>Cellular-Connected Autonomous Drone</b> | <span class="tech">C++, Python, Arduino, TCP/UDP</span></span><b>Nov 2019 – Mar 2020</b></div>
+  <ul>
+    <li>Quadcopter with cellular tower routing (<b>+30% range</b>), IMU/GPS/barometer/camera over SPI, I2C and UART, and live TCP/UDP telemetry.</li>
+  </ul>
+</div>
+
+<h2>Skills</h2>
+<div class="skills">
+  <p><b>Languages:</b> Python, C++, Go, TypeScript, JavaScript, C, SQL, PowerShell, Shell, SystemC, HTML5, CSS3</p>
+  <p><b>Backend &amp; Cloud:</b> FastAPI, Flask, Node.js, Express, REST, JWT, WebSockets, AWS (EC2, S3, Lambda), Azure, Docker, Jenkins, GitHub Actions</p>
+  <p><b>Data &amp; ML:</b> PostgreSQL, MongoDB, MySQL, Azure SQL, TensorFlow, scikit-learn, OpenCV, MediaPipe, NumPy</p>
+  <p><b>Embedded &amp; IoT:</b> Arduino, Raspberry Pi, UART, I2C, SPI, TCP/IP, UDP, MQTT</p>
+</div>
+</body>
+</html>

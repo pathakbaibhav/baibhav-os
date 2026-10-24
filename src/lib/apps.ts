@@ -67,14 +67,14 @@ export const APPS: Record<AppId, AppMeta> = {
   projects: app("projects", "Projects", "#E8893C", 1120, 700, "Filterable index of my work, with a full case study for each project."),
   resume: app("resume", "Resume", "#D9A43A", 1000, 700, "My resume: summary, experience, projects, skills and education."),
   skills: app("skills", "Skills", "#8B6CF0", 1000, 660, "Every tool I use, and the jobs and projects where I used it."),
-  terminal: app("terminal", "Terminal", "#2B3140", 880, 580, "A working shell. Try help, projects or route park-street harvard."),
-  lab: app("lab", "Lab", "#1C9DB8", 1120, 700, "Live status, latency and traffic for the APIs I run."),
-  github: app("github", "GitHub", "#2D9C6A", 520, 360, "My contribution graph, recent commits and pinned repositories, pulled live.", false),
-  writing: app("writing", "Writing", "#C2557A", 520, 360, "Build logs and deep dives on the projects.", false),
-  contact: app("contact", "Contact", "#D9506A", 560, 440, "Send me a message, or grab my email and links."),
+  terminal: app("terminal", "Terminal", "#2B3140", 880, 580, "A working shell with real subway routing. Try help, or route park-street harvard."),
+  lab: app("lab", "Lab", "#1C9DB8", 1120, 720, "Live numbers: my route engine benchmarked on your device, plus the MBTA and GitHub feeds."),
+  github: app("github", "GitHub", "#2D9C6A", 1000, 680, "My contribution graph, recent repositories and activity, pulled live from GitHub."),
+  writing: app("writing", "Writing", "#C2557A", 900, 660, "Build logs and deep dives on the projects."),
+  contact: app("contact", "Contact", "#D9506A", 900, 640, "Email, LinkedIn, or send me a message right here."),
   settings: app("settings", "Settings", "#5A6272", 940, 660, "Theme, accent color, wallpaper, sound and motion."),
   help: app("help", "Help", "#C9862E", 1080, 700, "How baibhavOS works: a quick tour, every app, shortcuts and phone tips."),
-  arcade: app("arcade", "Arcade", "#3BA55C", 520, 360, "Small games, for when you need a break.", false),
+  arcade: app("arcade", "Arcade", "#3BA55C", 520, 660, "Packet Snake, for when you need a break."),
 };
 
 export const LAUNCHPAD_ORDER: AppId[] = [

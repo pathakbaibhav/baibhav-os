@@ -34,6 +34,9 @@ export function Terminal() {
     setCmd("");
     if (res.open) open(res.open);
     if (res.href) window.location.href = res.href;
+    res.pending
+      ?.then((more) => setLines((prev) => [...prev, ...more]))
+      .catch(() => setLines((prev) => [...prev, { text: "something went wrong; try again", kind: "err" }]));
   };
 
   return (

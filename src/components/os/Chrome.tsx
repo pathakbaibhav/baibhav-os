@@ -6,6 +6,8 @@ import { APPS, DESKTOP_ICONS, DOCK, ICONS, type AppId } from "@/lib/apps";
 import { commands } from "@/lib/commands";
 import { motionOK } from "@/lib/motion";
 import { play } from "@/lib/sound";
+import { getAlerts, getBenchmark } from "@/lib/live";
+import { isActive } from "@/lib/subway/alerts";
 import { useOS, useSettings } from "@/lib/store";
 import type { Win } from "@/lib/windows";
 import { MenuList, type MenuItem } from "./Menu";
@@ -299,8 +301,30 @@ const STAT_ROWS = [
   ["peak API", "1,569 req/s"],
 ];
 
+/** Live numbers for the desktop's Systems widget; fetched after the desktop settles. */
+function useSystems(): [string, string][] {
+  const [p50, setP50] = useState<string>("…");
+  const [alerts, setAlerts] = useState<string>("…");
+  useEffect(() => {
+    let alive = true;
+    const t = setTimeout(() => {
+      getBenchmark().then((b) => alive && setP50(`${b.p50us.toFixed(1)} µs`));
+      getAlerts().then((a) => alive && setAlerts(a.ok && a.data ? `${a.data.alerts.filter((x) => isActive(x, new Date())).length} active` : "offline"));
+    }, 1500);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, []);
+  return [
+    ["Route engine p50", p50],
+    ["MBTA subway alerts", alerts],
+  ];
+}
+
 export function Widgets() {
   const open = useOS((s) => s.open);
+  const systems = useSystems();
   const card = "w-[280px] rounded-[18px] border border-line px-5 py-[18px] backdrop-blur-[20px] flex flex-col gap-2.5";
   const cardBg = { background: "color-mix(in srgb, var(--window) 65%, transparent)" };
   return (
@@ -318,7 +342,7 @@ export function Widgets() {
       </aside>
       <button type="button" onClick={() => open("lab")} className={`${card} cursor-pointer text-left`} style={cardBg}>
         <div className="eyebrow !text-muted">Systems</div>
-        {[["ASL inference API", "2.7 ms"], ["MBTA route API", "[p50]"]].map(([name, v]) => (
+        {systems.map(([name, v]) => (
           <div key={name} className="flex items-center justify-between text-sm text-fg">
             <span className="inline-flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#6EE7B7] shadow-[0_0_8px_#6EE7B7]" />

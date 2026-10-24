@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { PROJECTS, PROJECT_FILTERS, filterProjects, type Project, type ProjectFilter } from "@/data/projects";
 import { Stat, btnGhost, btnSolid, type AppProps } from "./ui";
 
@@ -129,14 +130,24 @@ function CaseStudyView({ project: p, onBack, onNext }: { project: Project; onBac
 
         {cs ? (
           <>
-            <div
-              role="img"
-              aria-label="Placeholder for a demo GIF"
-              className="flex h-[360px] items-center justify-center rounded-[18px] border border-dashed border-line px-6 text-center font-mono text-[13px] text-muted"
-              style={{ background: "radial-gradient(circle at 80% 15%, rgba(244,167,102,0.18), transparent 50%), #0E131D" }}
-            >
-              {cs.demoAlt}
-            </div>
+            {cs.media && cs.media.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <figure className="flex flex-col gap-2">
+                  <Image src={cs.media[0].src} alt={cs.media[0].alt} width={cs.media[0].w} height={cs.media[0].h} sizes="(min-width: 900px) 800px, 100vw" className="w-full rounded-[18px] border border-line" />
+                  <figcaption className="font-mono text-xs text-muted">{cs.media[0].caption}</figcaption>
+                </figure>
+                {cs.media.length > 1 && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {cs.media.slice(1).map((m) => (
+                      <figure key={m.src} className="flex flex-col gap-2">
+                        <Image src={m.src} alt={m.alt} width={m.w} height={m.h} sizes="(min-width: 900px) 400px, 50vw" className="w-full rounded-xl border border-line" />
+                        <figcaption className="font-mono text-[11px] leading-snug text-muted">{m.caption}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <CsSection title="Key results">
               <div className="grid grid-cols-2 gap-3 @3xl:grid-cols-4">
                 {cs.results.map((r) => <Stat key={r.l} {...r} />)}
@@ -169,10 +180,12 @@ function CaseStudyView({ project: p, onBack, onNext }: { project: Project; onBac
                   <p className="text-[17px] leading-[1.75] text-fg2">{s.p}</p>
                 </div>
               ))}
-              <div className="rounded-[14px] border border-[rgba(244,167,102,0.25)] bg-[rgba(244,167,102,0.06)] px-5 py-[18px]">
-                <div className="font-mono text-xs text-warm">What didn&apos;t work</div>
-                <p className="mt-2 text-[15px] leading-relaxed text-fg2">{cs.deadEnd}</p>
-              </div>
+              {cs.deadEnd && (
+                <div className="rounded-[14px] border border-[rgba(244,167,102,0.25)] bg-[rgba(244,167,102,0.06)] px-5 py-[18px]">
+                  <div className="font-mono text-xs text-warm">What didn&apos;t work</div>
+                  <p className="mt-2 text-[15px] leading-relaxed text-fg2">{cs.deadEnd}</p>
+                </div>
+              )}
             </CsSection>
             <CsSection title="Built with">
               <div className="flex flex-wrap gap-2">

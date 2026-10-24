@@ -43,12 +43,14 @@ describe("terminal", () => {
 
   it("experience and stack come from the resume data", () => {
     expect(runCommand("experience").lines.slice(1).map((l) => l.text)).toEqual([
+      "2026–now  Senior Software Engineer · Zoppler Systems",
       "2025–26  Software Engineer · IpserLabs",
       "2021–23  Software Engineer, Backend & Automation · PPD (Thermo Fisher)",
     ]);
     expect(runCommand("stack").lines[1].text).toMatch(/^Languages\s+Python, Go/);
     expect(yearSpan("Aug 2016 – Sep 2020")).toBe("2016–20");
     expect(yearSpan("May 2025")).toBe("2025");
+    expect(yearSpan("Mar 2026 – Present")).toBe("2026–now");
   });
 
   it("clear wipes the screen", () => {
@@ -61,8 +63,22 @@ describe("terminal", () => {
     expect(runCommand("open nope").lines[1].kind).toBe("err");
   });
 
-  it("route is stubbed until the API is live", () => {
-    expect(runCommand("route park-street harvard").lines[1].text).toContain("phase 4");
+  it("route plans a real trip, and says when live alerts aren't reachable", async () => {
+    const r = runCommand("route park-street harvard");
+    expect(r.lines).toHaveLength(1);
+    const more = await r.pending!;
+    expect(more[0].text).toMatch(/^Park Street → Harvard · \d+ min · 0 transfers$/);
+    expect(more.at(-1)!.text).toMatch(/live alerts unavailable/); // no API server in unit tests
+  });
+
+  it("route accepts 'to', and explains bad input", async () => {
+    expect((await runCommand("route kendall to airport").pending!)[0].text).toMatch(/^Kendall\/MIT → Airport/);
+    expect(runCommand("route harvard").lines[1].text).toMatch(/^usage: route/);
+    expect((await runCommand("route nowhere harvard").pending!)[0].kind).toBe("err");
+  });
+
+  it("stations searches names", async () => {
+    expect((await runCommand("stations park").pending!)[0].text).toContain("Park Street");
   });
 
   it("unknown commands suggest help", () => {

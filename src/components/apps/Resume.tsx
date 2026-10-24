@@ -111,9 +111,11 @@ function ReadView({ params, setParams }: AppProps) {
                 </h2>
                 <span className="font-mono text-xs text-muted">{j.dates} · {j.location}</span>
               </div>
-              <ul className="flex list-disc flex-col gap-1.5 pl-[18px] text-sm leading-relaxed text-fg2">
-                {j.bullets.map((b) => <li key={b}>{b}</li>)}
-              </ul>
+              {j.bullets.length > 0 && (
+                <ul className="flex list-disc flex-col gap-1.5 pl-[18px] text-sm leading-relaxed text-fg2">
+                  {j.bullets.map((b) => <li key={b}>{b}</li>)}
+                </ul>
+              )}
               <div className="flex flex-wrap gap-1.5">
                 {j.tags.map((t) => <span key={t} className={chip} style={chipBg}>{t}</span>)}
               </div>
@@ -132,9 +134,10 @@ function ReadView({ params, setParams }: AppProps) {
                 className="flex w-full cursor-pointer flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-hair py-3.5 text-left"
               >
                 <span className="w-7 font-mono text-xs text-muted">{p.num}</span>
-                <span className="min-w-0 flex-1">
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
                   <span className="block font-semibold text-fg">{p.title}</span>
-                  <span className="block text-sm text-fg2">{p.tagline}</span>
+                  <span className="block text-sm text-fg2">{p.tagline} {p.desc}</span>
+                  <span className="block font-mono text-[11px] text-muted">{(p.caseStudy?.builtWith ?? p.stack).join(" · ")}</span>
                 </span>
                 <span className="font-mono text-xs text-warm">{p.metrics.map((m) => m.v).join(" · ")}</span>
                 <span className="text-sm text-accent">Case study →</span>

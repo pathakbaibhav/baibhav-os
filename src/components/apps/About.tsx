@@ -1,6 +1,7 @@
 "use client";
 
-import { CURRENTLY, DRIVES, FACTS, JOURNEY, PROFILE } from "@/data/profile";
+import Image from "next/image";
+import { CURRENTLY, DRIVES, FACTS, JOURNEY, OUTSIDE, PROFILE } from "@/data/profile";
 import { commands } from "@/lib/commands";
 import { RailDoc, Section, btnGhost, btnSolid, type AppProps } from "./ui";
 
@@ -9,6 +10,7 @@ const SECTIONS = [
   { id: "journey", label: "Journey" },
   { id: "drives", label: "What drives me" },
   { id: "currently", label: "Currently" },
+  { id: "outside", label: "Outside work" },
   { id: "contact", label: "Contact" },
 ];
 
@@ -29,22 +31,22 @@ export function About({ params, setParams }: AppProps) {
     >
       <Section id="overview" n={1} title="Overview">
         <div className="mt-4 flex flex-col gap-8 @2xl:flex-row @2xl:items-start">
-          <div
-            role="img"
-            aria-label="Placeholder for a portrait"
-            className="flex h-[210px] w-[170px] flex-none items-center justify-center rounded-2xl border border-dashed border-line font-mono text-xs text-muted"
-            style={{ background: "linear-gradient(160deg, rgba(127,212,232,0.12), rgba(244,167,102,0.08))" }}
-          >
-            [ portrait ]
-          </div>
+          <Image
+            src={PROFILE.portrait}
+            alt={`Portrait of ${PROFILE.name}`}
+            width={400}
+            height={500}
+            sizes="200px"
+            className="h-[250px] w-[200px] flex-none rounded-2xl border border-line object-cover shadow-[0_12px_32px_var(--shadow)]"
+          />
           <div className="flex flex-1 flex-col gap-3.5">
             <h1 className="text-[clamp(28px,4cqw,38px)] font-extrabold leading-tight">
               Hi, I&apos;m Baibhav. {PROFILE.headline}
             </h1>
             <p className="text-base leading-[1.7] text-fg2">
               I&apos;m a software engineer who works on the parts people don&apos;t see: control-plane services, APIs, data pipelines
-              and the automation that keeps teams moving. I started out wiring sensors to microcontrollers, and I still think about
-              software the way I think about hardware: it should be predictable, measurable and hard to break.
+              and the automation that keeps teams moving. I grew up helping my dad, an electrical engineer, take apart whatever had
+              stopped working, and I still build software the way he fixes hardware: predictable, measurable and hard to break.
             </p>
             <dl className="mt-1.5 grid gap-x-6 @xl:grid-cols-2">
               {FACTS.map((f) => (
@@ -59,7 +61,7 @@ export function About({ params, setParams }: AppProps) {
       </Section>
 
       <Section id="journey" n={2} title="Journey">
-        <h2 className="mb-6 mt-2 text-[26px] font-bold">From soldering irons to control planes.</h2>
+        <h2 className="mb-6 mt-2 text-[26px] font-bold">From games with my dad to control planes.</h2>
         <ol>
           {JOURNEY.map((j) => (
             <li key={j.title} className="flex gap-5">
@@ -99,7 +101,26 @@ export function About({ params, setParams }: AppProps) {
         </dl>
       </Section>
 
-      <Section id="contact" n={5} title="Contact">
+      <Section id="outside" n={5} title="Outside work">
+        <div className="mt-4 flex flex-col gap-4">
+          <Image
+            src={OUTSIDE.photo.src}
+            alt={OUTSIDE.photo.alt}
+            width={OUTSIDE.photo.w}
+            height={OUTSIDE.photo.h}
+            sizes="(min-width: 1000px) 760px, 100vw"
+            className="w-full max-w-[760px] rounded-2xl border border-line object-cover"
+          />
+          <p className="max-w-[60ch] text-base leading-[1.7] text-fg2">{OUTSIDE.text}</p>
+          <ul className="flex flex-wrap gap-2">
+            {OUTSIDE.interests.map((i) => (
+              <li key={i} className="rounded-full border border-line px-3 py-1 text-[13px]">{i}</li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <Section id="contact" n={6} title="Contact">
         <h2 className="mb-4 mt-2 text-[26px] font-bold">Let&apos;s build something that stays up.</h2>
         <div className="flex flex-wrap gap-2.5">
           <a href={`mailto:${PROFILE.email}`} className={btnSolid}>{PROFILE.email}</a>

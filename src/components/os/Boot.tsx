@@ -86,7 +86,7 @@ export function Boot({ onEnter }: { onEnter: () => void }) {
 
       <div className="flex flex-col items-center gap-3 text-center">
         <h1 className="text-[clamp(28px,5vw,44px)] font-bold tracking-[0.04em] text-[#B9B2B5]">{PROFILE.name.toUpperCase()}</h1>
-        <p className="text-[clamp(12px,1.6vw,17px)] tracking-[0.14em] text-[#7F99BA]">BACKEND · SYSTEMS · IoT · BOSTON</p>
+        <p className="text-[clamp(12px,1.6vw,17px)] tracking-[0.14em] text-[#7F99BA]">BACKEND · SYSTEMS · IoT · {PROFILE.location.split(",")[0].toUpperCase()}</p>
       </div>
 
       <div className="flex w-[min(360px,100%)] flex-col gap-1.5 text-xs text-[#8792A6]" aria-live="polite">

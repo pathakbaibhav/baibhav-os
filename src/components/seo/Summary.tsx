@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { APPS, LAUNCHPAD_ORDER } from "@/lib/apps";
 import { pathFor, type Route } from "@/lib/routes";
-import { DRIVES, FACTS, JOURNEY, PROFILE } from "@/data/profile";
+import { DRIVES, FACTS, JOURNEY, OUTSIDE, PROFILE } from "@/data/profile";
 import { PROJECTS } from "@/data/projects";
 import { EDUCATION, JOBS } from "@/data/experience";
 import { SKILLS } from "@/data/skills";
@@ -60,7 +60,7 @@ function Experience() {
         <article key={j.id}>
           <h3>{j.role}, {j.company}</h3>
           <p>{j.dates} · {j.location}</p>
-          <ul>{j.bullets.map((b) => <li key={b}>{b}</li>)}</ul>
+          {j.bullets.length > 0 && <ul>{j.bullets.map((b) => <li key={b}>{b}</li>)}</ul>}
         </article>
       ))}
       <h2>Education</h2>
@@ -87,6 +87,8 @@ function About() {
       <ol>{JOURNEY.filter((j) => !j.year.startsWith("[")).map((j) => <li key={j.title}>{j.year}: {j.title}. {j.text}</li>)}</ol>
       <h3>What drives me</h3>
       <ul>{DRIVES.map((d) => <li key={d.t}>{d.t}: {d.x}</li>)}</ul>
+      <h3>Outside work</h3>
+      <p>{OUTSIDE.text}</p>
     </section>
   );
 }

@@ -1,19 +1,21 @@
 // Every project, in display order. `num` must match the position; Spotlight,
 // the terminal and the Projects app all key off it.
 
-export type ProjectCategory = "Backend" | "Hardware & ML" | "IoT";
+export type ProjectCategory = "Backend" | "Hardware & ML" | "IoT" | "Full-stack";
 export type ProjectStatus = "Live" | "Completed" | "In progress";
 
 export type CaseStudy = {
   meta: string;
   headline: string;
   demo?: string;
-  demoAlt: string;
+  /** Screenshots or photos, shown as a gallery; the first one large. */
+  media?: { src: string; alt: string; caption: string; w: number; h: number }[];
   results: { v: string; l: string; c?: string }[];
   overview: string;
   architecture: { name: string; sub: string; highlight?: boolean }[];
   story: { h: string; p: string }[];
-  deadEnd: string;
+  /** One honest dead end; the box is hidden when absent. */
+  deadEnd?: string;
   builtWith: string[];
 };
 
@@ -51,11 +53,14 @@ export const PROJECTS: Project[] = [
       { v: "3.5×", l: "443 → 1,569 req/s" },
     ],
     stack: ["Python", "Flask", "TensorFlow", "MediaPipe", "gunicorn"],
-    source: "https://github.com/pathakbaibhav/ASL-Learning-Platform",
+    source: "https://github.com/pathakbaibhav/ASL-Interpretation-And-Learning-Tool",
     caseStudy: {
-      meta: "Mar – Apr 2024 · Backend & ML",
+      meta: "Mar – Apr 2024 · solo · Backend & ML",
       headline: "A Flask API that reads American Sign Language in under 3 ms, and keeps doing it at 1,500+ requests a second.",
-      demoAlt: "[ 10-second demo GIF: signing \"HELLO\" in practice mode ]",
+      demo: "https://pathakbaibhav.github.io/ASL-Interpretation-And-Learning-Tool/",
+      media: [
+        { src: "/images/projects/asl-live.webp", alt: "The ASL Interpreter web app with a camera panel, detected letter, confidence gauge and translation box", caption: "The live demo: translate and practice modes, running entirely in the browser.", w: 1440, h: 900 },
+      ],
       results: [
         { v: "2.7 ms", l: "median inference", c: "per request, single client" },
         { v: "100%", l: "held-out accuracy", c: "across 27 classes" },
@@ -80,7 +85,6 @@ export const PROJECTS: Project[] = [
           p: "Per-request inference capped out at 443 req/s. Dynamic micro-batching, multi-process workers and a thread-safe LRU cache brought it to 1,569 req/s and cut p95 latency by 57%.",
         },
       ],
-      deadEnd: "[One honest dead end, e.g. a batch window so long it hurt single-user latency, and how you found the right size.]",
       builtWith: ["Python", "Flask", "TensorFlow", "scikit-learn", "MediaPipe", "OpenCV", "gunicorn", "JavaScript", "HTML5", "CSS3", "GitHub Actions · 61 tests"],
     },
   },
@@ -102,10 +106,14 @@ export const PROJECTS: Project[] = [
     stack: ["Python", "FastAPI", "BeautifulSoup", "p5.js"],
     source: "https://github.com/pathakbaibhav/Boston-Subway-Network-Visualization",
     caseStudy: {
-      meta: "Feb – Mar 2024, revisited Oct 2026 · Backend & data",
+      meta: "Feb – Mar 2024, revisited Oct 2026 · solo · Backend & data",
       headline: "Fastest routes across Boston's 125 subway stations, rerouted automatically around live service closures.",
       demo: "https://pathakbaibhav.github.io/Boston-Subway-Network-Visualization/",
-      demoAlt: "[ 10-second demo GIF: a closure appears and the route redraws around it ]",
+      media: [
+        { src: "/images/projects/subway-route.webp", alt: "Subway map with a highlighted trip from Alewife to Heath Street on the Red and Green lines", caption: "A live trip: Alewife to Heath Street, 50 minutes with one transfer.", w: 1180, h: 860 },
+        { src: "/images/projects/subway-reroute.webp", alt: "The same map after a Red Line service change, with the trip rerouted through Haymarket", caption: "A service change arrives and the trip reroutes around it.", w: 1180, h: 860 },
+        { src: "/images/projects/subway-planned.webp", alt: "A trip planned for a future date, routed around a scheduled Green Line shutdown", caption: "Planning ahead: a future trip routed around a scheduled shutdown.", w: 1180, h: 860 },
+      ],
       results: [
         { v: "9×", l: "faster routing", c: "Dijkstra on an adjacency list vs the original matrix" },
         { v: "7,750", l: "station pairs", c: "fastest route computed for every pair" },
@@ -131,7 +139,6 @@ export const PROJECTS: Project[] = [
           p: "Service alerts arrive as free text, so a BeautifulSoup scraper pulls them and a validation step turns them into structured JSON and CSV. Closed segments drop out of the graph and trips reroute automatically. A scheduled GitHub Actions pipeline keeps the data fresh, and an LRU cache answers 77% of popular route requests without recomputing.",
         },
       ],
-      deadEnd: "[One honest dead end, e.g. an alert format the parser got wrong, and how you caught it.]",
       builtWith: ["Python", "FastAPI", "BeautifulSoup", "MBTA V3 API", "Dijkstra", "py5", "p5.js", "GitHub Actions", "GitHub Pages"],
     },
   },
@@ -153,14 +160,13 @@ export const PROJECTS: Project[] = [
     stack: ["C++", "SystemC", "FPGA"],
     source: "https://github.com/pathakbaibhav/Project-VIT-SystemC",
     caseStudy: {
-      meta: "Nov – Dec 2025 · Hardware/software co-design",
+      meta: "Nov – Dec 2025 · team project · Hardware/software co-design",
       headline: "A Vision Transformer image classifier modelled as a system-on-chip, made 30% faster for edge hardware.",
-      demoAlt: "[ Diagram or screenshot: the SystemC module graph and a simulation trace ]",
       results: [
         { v: "−30%", l: "inference latency", c: "parallel patch embedding + fixed-point maths" },
         { v: "FPGA", l: "feasibility studied", c: "throughput and resource use" },
         { v: "3", l: "modular stages", c: "patch embedding, transformer blocks, MLP head" },
-        { v: "[ % ]", l: "accuracy kept", c: "after fixed-point conversion" },
+        { v: "Fixed-point", l: "arithmetic", c: "accuracy kept high on constrained hardware" },
       ],
       overview:
         "The classifier is built in C++ and SystemC as separate hardware modules: patch embedding, transformer blocks and an MLP classifier head. Patch embeddings run in parallel and the maths moves to fixed point, so the design fits the constraints of edge hardware while keeping accuracy high. FPGA feasibility studies measured throughput and resource use to set performance targets for real-time edge AI.",
@@ -180,7 +186,6 @@ export const PROJECTS: Project[] = [
           p: "Patch embeddings are independent, so they run in parallel; moving to fixed-point arithmetic made each operation cheaper in hardware. FPGA feasibility studies then measured throughput and resource use to show where the design could run in real time.",
         },
       ],
-      deadEnd: "[One honest dead end, e.g. a fixed-point width that lost too much accuracy, and how you picked the final one.]",
       builtWith: ["C++", "SystemC", "Vision Transformer", "Edge AI", "Fixed-point arithmetic", "FPGA feasibility study"],
     },
   },
@@ -201,9 +206,8 @@ export const PROJECTS: Project[] = [
     ],
     stack: ["C++", "Python", "Arduino", "TCP/UDP"],
     caseStudy: {
-      meta: "Nov 2019 – Mar 2020 · Embedded & IoT",
+      meta: "Nov 2019 – Mar 2020 · solo · Embedded & IoT",
       headline: "An autonomous quadcopter that routes its link over cell towers, flying 30% further than a traditional RF link allows.",
-      demoAlt: "[ Photo or short flight clip of the drone ]",
       results: [
         { v: "+30%", l: "operational range", c: "cellular routing vs traditional RF links" },
         { v: "−25%", l: "sensor response time", c: "after optimising low-level data acquisition" },
@@ -229,13 +233,64 @@ export const PROJECTS: Project[] = [
           p: "The IMU, GPS, barometer and camera talk over SPI, I2C and UART. Optimising the low-level data acquisition cut signal response time by 25%, and separate TCP/IP and UDP channels carry live video and telemetry to the ground.",
         },
       ],
-      deadEnd: "[One honest dead end, e.g. latency over the cellular link and how the TCP/UDP split dealt with it.]",
       builtWith: ["Arduino C++", "Python", "SPI", "I2C", "UART", "TCP/IP", "UDP", "Cellular networking"],
+    },
+  },
+  {
+    num: "05",
+    slug: "baibhav-os",
+    title: "baibhavOS (this site)",
+    cat: "Full-stack",
+    year: "2026",
+    status: "In progress",
+    featured: true,
+    hue: "#5B8CFF",
+    tagline: "My portfolio, built as a small operating system that runs in the browser.",
+    desc: "A Next.js and TypeScript desktop with a window manager, 12 apps, a terminal that runs my subway route engine on live MBTA alerts, and a phone layout on the same window store.",
+    metrics: [
+      { v: "12", l: "apps in one window manager" },
+      { v: "90+", l: "tests in CI" },
+    ],
+    stack: ["Next.js", "TypeScript", "React", "Tailwind CSS", "Zustand"],
+    source: "https://github.com/pathakbaibhav/baibhav-os",
+    caseStudy: {
+      meta: "Oct 2026 – present · solo · Full-stack",
+      headline: "A portfolio that boots like an operating system: windows, a dock, a working terminal and live data, on desktop and on a phone.",
+      media: [
+        { src: "/images/projects/os-about.webp", alt: "The baibhavOS desktop with the About Me window open over the code-pane wallpaper", caption: "The desktop: macOS-style menu bar, dock and glass windows over a 3D code-pane wallpaper.", w: 1440, h: 900 },
+        { src: "/images/projects/os-projects.webp", alt: "The Projects app with a filterable index on the left and a project preview on the right", caption: "Projects: a filterable index with a preview, and a full case study one click away.", w: 1440, h: 900 },
+        { src: "/images/projects/os-resume.webp", alt: "The Resume app with Read and PDF tabs, a section rail and the experience list", caption: "Resume: a readable version and the PDF, side by side in one app.", w: 1440, h: 900 },
+      ],
+      results: [
+        { v: "12", l: "apps", c: "About, Projects, Resume, Skills, Terminal, Lab and more" },
+        { v: "90+", l: "automated tests", c: "unit tests plus smoke tests that render the whole OS" },
+        { v: "7,750", l: "routes in the browser", c: "my subway engine, ported to TypeScript, on live alerts" },
+        { v: "0", l: "cookies or trackers", c: "settings stay in the visitor's browser" },
+      ],
+      overview:
+        "Every part of a resume is an app here: windows open, drag, snap and minimise; Spotlight searches apps, projects, skills and actions; and every window has its own URL, so a case study can be linked to directly and read by search engines. On a phone the same OS becomes a home screen, with apps that open full screen and work with the phone's back gesture.",
+      architecture: [
+        { name: "Next.js pages", sub: "prerendered, one URL per app" },
+        { name: "Window store", sub: "Zustand, desktop + phone", highlight: true },
+        { name: "12 apps", sub: "data-driven content" },
+        { name: "API routes", sub: "MBTA, GitHub, contact (cached)" },
+      ],
+      story: [
+        {
+          h: "One window store for desktop and phone.",
+          p: "The phone layout first kept its own idea of which app was open, so links between apps silently did nothing on phones. Moving both layouts onto the same window store fixed every link at once and gave the phone proper back navigation, tied to the browser's history.",
+        },
+        {
+          h: "Live data without a server to babysit.",
+          p: "The terminal and the Lab run my subway route engine, ported from Python to TypeScript, in the visitor's browser. Live MBTA alerts and GitHub data come through small cached API routes, so every visitor shares one upstream request and the site stays fast.",
+        },
+      ],
+      builtWith: ["Next.js 15", "React 19", "TypeScript", "Tailwind CSS 4", "Zustand", "Vitest", "Testing Library", "GitHub Actions"],
     },
   },
 ];
 
-export const PROJECT_FILTERS = ["Featured", "Backend", "Hardware & ML", "IoT", "All"] as const;
+export const PROJECT_FILTERS = ["Featured", "Backend", "Full-stack", "Hardware & ML", "IoT", "All"] as const;
 export type ProjectFilter = (typeof PROJECT_FILTERS)[number];
 
 export function filterProjects(list: Project[], filter: ProjectFilter): Project[] {

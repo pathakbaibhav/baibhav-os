@@ -81,6 +81,11 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* Containers focused by script (a window that just opened) keep focus for the
+   keyboard but don't draw a ring; the controls inside them do. */
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
 
 .eyebrow {
   font-family: var(--font-mono);
@@ -89,6 +94,22 @@ body {
   text-transform: uppercase;
   color: var(--accent);
 }
+
+/* Markdown posts in the Writing app. */
+.prose-os { color: var(--fg2); font-size: 17px; line-height: 1.75; }
+.prose-os > * + * { margin-top: 1.1em; }
+.prose-os h2 { color: var(--fg); font-size: 24px; font-weight: 700; line-height: 1.3; margin-top: 1.8em; }
+.prose-os h3 { color: var(--fg); font-size: 19px; font-weight: 600; margin-top: 1.5em; }
+.prose-os a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.prose-os strong { color: var(--fg); }
+.prose-os ul, .prose-os ol { padding-left: 1.3em; }
+.prose-os ul { list-style: disc; }
+.prose-os ol { list-style: decimal; }
+.prose-os code { font-family: var(--font-mono); font-size: 0.88em; background: var(--card); border: 1px solid var(--hair); border-radius: 6px; padding: 0.1em 0.35em; }
+.prose-os pre { font-family: var(--font-mono); font-size: 14px; line-height: 1.6; background: #05070b; color: #c9cfda; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; overflow-x: auto; }
+.prose-os pre code { background: none; border: 0; padding: 0; }
+.prose-os blockquote { border-left: 2px solid var(--accent); padding-left: 1em; color: var(--muted); }
+.prose-os img { border-radius: 12px; border: 1px solid var(--line); }
 
 @keyframes win-open {
   from { opacity: 0; transform: scale(0.96) translateY(8px); }

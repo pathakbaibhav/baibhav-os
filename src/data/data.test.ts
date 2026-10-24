@@ -22,6 +22,6 @@ describe("content data", () => {
   });
 
   it("jobs are listed newest first", () => {
-    expect(JOBS.map((j) => j.id)).toEqual(["ipserlabs", "ppd"]);
+    expect(JOBS.map((j) => j.id)).toEqual(["zoppler", "ipserlabs", "ppd"]);
   });
 });

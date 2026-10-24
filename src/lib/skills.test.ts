@@ -12,7 +12,7 @@ describe("skill usage", () => {
 
   it("finds Python in both jobs and most projects", () => {
     const u = usageOf("Python");
-    expect(u.jobs.map((j) => j.id)).toEqual(["ipserlabs", "ppd"]);
+    expect(u.jobs.map((j) => j.id)).toEqual(["zoppler", "ipserlabs", "ppd"]);
     expect(u.projects.map((p) => p.slug)).toEqual(["asl-engine", "subway-optimizer", "cellular-drone"]);
   });
 
