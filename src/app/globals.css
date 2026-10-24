@@ -98,15 +98,30 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes spin-rev { to { transform: rotate(-360deg); } }
-@keyframes load { from { width: 0; } to { width: 100%; } }
 @keyframes blink { 50% { opacity: 0; } }
 @keyframes pulse-glow { 50% { opacity: 0.45; } }
 @keyframes pane-float {
-  50% { transform: rotateY(-24deg) rotateX(10deg) translateY(-10px); }
+  50% { transform: translateY(-12px) rotateY(2deg); }
+}
+@keyframes chip-drift {
+  50% { transform: translate3d(6px, -14px, 0); }
+}
+@keyframes desk-in {
+  from { opacity: 0; transform: scale(1.04); }
+}
+
+@keyframes win-close {
+  to { opacity: 0; transform: scale(0.94); }
+}
+@keyframes win-min {
+  to { opacity: 0; transform: scale(0.06); }
 }
 
 .anim-win { animation: win-open 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+.anim-close { animation: win-close 160ms ease-in forwards; }
+.anim-min { animation: win-min 320ms cubic-bezier(0.5, 0, 0.75, 0) forwards; }
 .anim-fade { animation: fade-in 160ms ease-out; }
+.anim-desk { animation: desk-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1); }
 
 :root[data-motion="off"] *,
 :root[data-motion="off"] *::before {

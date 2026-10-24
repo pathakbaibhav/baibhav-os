@@ -63,10 +63,10 @@ function useMounted() {
 
 /** Keep the address bar and tab title on the focused window, so any window can be shared as a link. */
 function useUrlSync() {
-  const route = useOS((s): Route | null => {
-    const w = s.focused ? s.windows[s.focused] : undefined;
-    return w && !w.minimized ? { app: w.id, params: w.params } : null;
-  });
+  // Select the window object itself (a stable store reference) and derive the route
+  // outside the selector: returning a fresh object from a selector loops forever.
+  const win = useOS((s) => (s.focused ? s.windows[s.focused] : undefined));
+  const route: Route | null = win && !win.minimized ? { app: win.id, params: win.params } : null;
   const path = pathFor(route?.app ?? null, route?.params);
   const title = titleFor(route);
   useEffect(() => {

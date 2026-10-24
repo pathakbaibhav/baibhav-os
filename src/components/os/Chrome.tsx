@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { APPS, DESKTOP_ICONS, DOCK, ICONS, type AppId } from "@/lib/apps";
 import { commands } from "@/lib/commands";
+import { motionOK } from "@/lib/motion";
 import { useOS, useSettings } from "@/lib/store";
 import type { Win } from "@/lib/windows";
 import { MenuList, type MenuItem } from "./Menu";
@@ -118,12 +119,12 @@ export function MenuBar() {
 }
 
 function useLaunch() {
-  const { windows, focused, open, focus, minimize, setLaunchpad } = useOS();
+  const { windows, focused, open, focus, requestMinimize, setLaunchpad } = useOS();
   return (id: AppId | "launchpad") => {
     if (id === "launchpad") return setLaunchpad(true);
     const w = windows[id];
     if (!w) open(id);
-    else if (focused === id && !w.minimized) minimize(id);
+    else if (focused === id && !w.minimized) requestMinimize(id);
     else focus(id);
   };
 }
@@ -153,24 +154,70 @@ export function DesktopIcons() {
   );
 }
 
+const MAGNIFY = 0.3; // extra scale at the cursor
+const MAGNIFY_RADIUS = 110; // px over which the effect fades out
+
 export function Dock() {
   const launch = useLaunch();
   const { windows, focused } = useOS();
+  const [pointerX, setPointerX] = useState<number | null>(null);
+  // Icon centres, measured unscaled when the pointer enters (scaling is a transform, so they don't move).
+  const centers = useRef<Record<string, number>>({});
+  const buttons = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const scaleOf = (key: string) => {
+    const c = centers.current[key];
+    if (pointerX === null || c === undefined) return 1;
+    return 1 + MAGNIFY * Math.max(0, 1 - Math.abs(pointerX - c) / MAGNIFY_RADIUS);
+  };
+
   return (
     <nav
       aria-label="Dock"
-      className="absolute bottom-3 left-1/2 z-[8000] flex max-w-[calc(100vw-24px)] -translate-x-1/2 items-end gap-[9px] overflow-x-auto rounded-[22px] border border-line px-[11px] py-2 shadow-[0_20px_60px_var(--shadow)] backdrop-blur-[24px] backdrop-saturate-[160%]"
+      onPointerEnter={(e) => {
+        if (e.pointerType !== "mouse" || !motionOK()) return;
+        for (const [k, el] of Object.entries(buttons.current)) {
+          if (el) {
+            const r = el.getBoundingClientRect();
+            centers.current[k] = r.left + r.width / 2;
+          }
+        }
+        setPointerX(e.clientX);
+      }}
+      onPointerMove={(e) => pointerX !== null && setPointerX(e.clientX)}
+      onPointerLeave={() => setPointerX(null)}
+      className="absolute bottom-3 left-1/2 z-[8000] flex max-w-[calc(100vw-24px)] -translate-x-1/2 items-end gap-[9px] rounded-[22px] border border-line px-[11px] py-2 shadow-[0_20px_60px_var(--shadow)] backdrop-blur-[24px] backdrop-saturate-[160%]"
       style={{ background: "color-mix(in srgb, var(--window) 55%, transparent)" }}
     >
       {DOCK.map((id, i) => {
         if (id === null) return <span key={`sep${i}`} className="h-10 w-px self-center bg-line" />;
         const label = id === "launchpad" ? "Launchpad" : APPS[id].label;
         const running = id !== "launchpad" && !!windows[id];
+        const scale = scaleOf(id);
         return (
-          <button key={id} type="button" aria-label={label} title={label} onClick={() => launch(id)} className="group flex flex-none cursor-pointer flex-col items-center gap-[5px]">
+          <button
+            key={id}
+            ref={(el) => {
+              buttons.current[id] = el;
+            }}
+            type="button"
+            aria-label={label}
+            onClick={() => launch(id)}
+            className="group relative flex flex-none cursor-pointer flex-col items-center gap-[5px]"
+          >
             <span
-              className="flex h-[50px] w-[50px] items-center justify-center rounded-[13px] border border-hair transition-transform duration-150 group-hover:-translate-y-1.5 group-hover:scale-110"
-              style={{ background: "var(--tile)", color: focused === id ? "var(--accent)" : "var(--fg)" }}
+              role="tooltip"
+              className="pointer-events-none absolute -top-11 whitespace-nowrap rounded-md border border-line bg-popover px-2.5 py-1 text-xs text-fg opacity-0 shadow-[0_8px_24px_var(--shadow)] transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+            >
+              {label}
+            </span>
+            <span
+              className="flex h-[50px] w-[50px] origin-bottom items-center justify-center rounded-[13px] border border-hair transition-transform duration-100 ease-out"
+              style={{
+                background: "var(--tile)",
+                color: focused === id ? "var(--accent)" : "var(--fg)",
+                transform: pointerX === null ? undefined : `translateY(${-(scale - 1) * 26}px) scale(${scale})`,
+              }}
             >
               <Icon d={id === "launchpad" ? ICONS.launchpad : APPS[id].icon} />
             </span>
@@ -193,7 +240,7 @@ export function Widgets() {
   const card = "w-[280px] rounded-[18px] border border-line px-5 py-[18px] backdrop-blur-[20px] flex flex-col gap-2.5";
   const cardBg = { background: "color-mix(in srgb, var(--window) 65%, transparent)" };
   return (
-    <div className="absolute right-7 top-14 z-[5] hidden flex-col gap-4 xl:flex">
+    <div className="anim-fade absolute right-7 top-14 z-[5] hidden flex-col gap-4 xl:flex">
       <aside aria-label="Now" className={card} style={cardBg}>
         <div className="eyebrow !text-muted">Now</div>
         <div className="text-[15px] leading-normal text-fg">{PROFILE.now}</div>

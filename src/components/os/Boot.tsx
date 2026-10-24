@@ -1,20 +1,58 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PROFILE } from "@/data/profile";
 import { PROJECTS } from "@/data/projects";
+import { motionOK } from "@/lib/motion";
+
+const LINES = [
+  `[ ok ] loading profile: ${PROFILE.name}`,
+  `[ ok ] mounting /projects … ${PROJECTS.length} found`,
+  "[ ok ] starting window server",
+  "[ ok ] wallpaper: route_api.py",
+  "ready.",
+];
+const LINE_MS = 380;
+const FADE_MS = 350;
 
 export function Boot({ onEnter }: { onEnter: () => void }) {
+  // Lines appear one by one; with motion off they are all there at once.
+  const [shown, setShown] = useState(LINES.length);
+  const [leaving, setLeaving] = useState(false);
+  const left = useRef(false);
+
   useEffect(() => {
-    const onKey = () => onEnter();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    if (!motionOK()) return;
+    setShown(0);
+    const t = setInterval(() => setShown((n) => (n >= LINES.length ? n : n + 1)), LINE_MS);
+    return () => clearInterval(t);
+  }, []);
+
+  // Fade out, then hand over to the desktop. Any key or click skips straight through.
+  const leave = useCallback(() => {
+    if (left.current) return;
+    left.current = true;
+    if (!motionOK()) return onEnter();
+    setLeaving(true);
+    setTimeout(onEnter, FADE_MS);
   }, [onEnter]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", leave);
+    return () => window.removeEventListener("keydown", leave);
+  }, [leave]);
+
+  const done = shown >= LINES.length;
 
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-7 overflow-hidden px-4 font-mono text-[#E6E9F0]"
-      style={{ background: "radial-gradient(circle at 50% 38%, #0D1522 0%, #05070B 60%)" }}
+      style={{
+        background: "radial-gradient(circle at 50% 38%, #0D1522 0%, #05070B 60%)",
+        opacity: leaving ? 0 : 1,
+        transform: leaving ? "scale(1.03)" : undefined,
+        transition: `opacity ${FADE_MS}ms ease-in, transform ${FADE_MS}ms ease-in`,
+      }}
     >
       <div className="relative h-[min(400px,80vw)] w-[min(400px,80vw)]">
         <svg aria-hidden="true" viewBox="0 0 400 400" className="absolute inset-0 h-full w-full" style={{ animation: "spin-rev 60s linear infinite" }}>
@@ -51,19 +89,26 @@ export function Boot({ onEnter }: { onEnter: () => void }) {
         <p className="text-[clamp(12px,1.6vw,17px)] tracking-[0.14em] text-[#7F99BA]">BACKEND · SYSTEMS · IoT · BOSTON</p>
       </div>
 
-      <div className="flex w-[min(360px,100%)] flex-col gap-2.5 text-xs text-[#8792A6]">
-        <div>[ ok ] mounting /projects … {PROJECTS.length} found</div>
-        <div>[ ok ] starting api.baibhav.dev … 200</div>
-        <div className="h-0.5 overflow-hidden rounded bg-[#141B27]">
-          <div className="h-0.5 w-full bg-[#7FD4E8]" style={{ animation: "load 2.4s ease-out" }} />
+      <div className="flex w-[min(360px,100%)] flex-col gap-1.5 text-xs text-[#8792A6]" aria-live="polite">
+        {LINES.map((line, i) => (
+          <div key={line} style={{ visibility: i < shown ? "visible" : "hidden" }} className={i === LINES.length - 1 ? "text-[#7FD4E8]" : undefined}>
+            {line}
+          </div>
+        ))}
+        <div className="mt-1.5 h-0.5 overflow-hidden rounded bg-[#141B27]">
+          <div
+            className="h-0.5 bg-[#7FD4E8] transition-[width] duration-300 ease-out"
+            style={{ width: `${(shown / LINES.length) * 100}%`, boxShadow: "0 0 10px #7FD4E8" }}
+          />
         </div>
       </div>
 
       <button
         type="button"
-        onClick={onEnter}
+        onClick={leave}
         autoFocus
-        className="mt-2 cursor-pointer rounded-full border border-[#23324A] px-[22px] py-3 text-[13px] tracking-[0.14em] text-[#E6E9F0] hover:border-[#7FD4E8]"
+        className="mt-2 cursor-pointer rounded-full border px-[22px] py-3 text-[13px] tracking-[0.14em] text-[#E6E9F0] transition-colors duration-300 hover:border-[#7FD4E8]"
+        style={{ borderColor: done ? "#7FD4E8" : "#23324A" }}
       >
         CLICK OR PRESS ANY KEY TO ENTER
         <span className="text-[#A78BFA]" style={{ animation: "blink 1s steps(1) infinite" }}> _</span>

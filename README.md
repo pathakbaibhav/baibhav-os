@@ -14,7 +14,7 @@ npm run dev        # http://localhost:3000
 | `npm run dev` | Dev server with hot reload |
 | `npm run build` | Production build |
 | `npm run check` | Lint, typecheck and unit tests (what CI runs, minus the build) |
-| `npm test` | Unit tests only (Vitest) |
+| `npm test` | Unit tests plus jsdom smoke tests that render the OS and open every app (Vitest) |
 
 Node 22 is pinned in `.nvmrc`; anything from Node 20 up works.
 
@@ -46,7 +46,7 @@ Text in `[brackets]` in `src/data/` is waiting for real content: the "Now" line,
 |---|---|
 | 0 | Project setup, content data, CI ✅ |
 | 1 | OS core: desktop, menu bar, dock, window manager, dark/light, a URL per app ✅ |
-| 2 | Look and feel: 3D code-pane wallpaper, boot screen, motion |
+| 2 | Look and feel: 3D code-pane wallpaper, boot screen, motion ✅ |
 | 3 | Content apps: About, Projects + case studies, Resume, Skills, Contact |
 | 4 | System apps: Help + tours, Settings, Launchpad, Spotlight, right-click menu |
 | 5 | Phone layout |

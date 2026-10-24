@@ -9,7 +9,7 @@ import type { Win } from "@/lib/windows";
 const SNAP_EDGE = 6;
 
 export function Window({ win, children }: { win: Win; children: ReactNode }) {
-  const { focused, focus, close, minimize, toggleMaximize, move, snap, resize } = useOS();
+  const { focused, focus, close, minimize, requestClose, requestMinimize, toggleMaximize, move, snap, resize } = useOS();
   const drag = useRef<{ dx: number; dy: number } | null>(null);
   const root = useRef<HTMLElement>(null);
   const isFocused = focused === win.id;
@@ -19,6 +19,28 @@ export function Window({ win, children }: { win: Win; children: ReactNode }) {
   useEffect(() => {
     root.current?.focus({ preventScroll: true });
   }, []);
+
+  // Finish a close / minimize once its animation ends; the timer covers a
+  // missed animationend (e.g. the tab was hidden mid-animation).
+  const finishExit = () => {
+    if (win.exiting === "close") close(win.id);
+    else if (win.exiting === "minimize") minimize(win.id);
+  };
+  const finishRef = useRef(finishExit);
+  finishRef.current = finishExit;
+  useEffect(() => {
+    if (!win.exiting) return;
+    const t = setTimeout(() => finishRef.current(), 450);
+    return () => clearTimeout(t);
+  }, [win.exiting]);
+
+  // Minimize shrinks toward the dock at the bottom centre of the screen.
+  const exitStyle =
+    win.exiting === "minimize"
+      ? { transformOrigin: `${window.innerWidth / 2 - win.x}px ${window.innerHeight - win.y}px`, pointerEvents: "none" as const }
+      : win.exiting === "close"
+        ? { pointerEvents: "none" as const }
+        : undefined;
 
   const onTitlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     focus(win.id);
@@ -58,8 +80,10 @@ export function Window({ win, children }: { win: Win; children: ReactNode }) {
       tabIndex={-1}
       aria-label={`${app.label} window`}
       onPointerDown={() => focus(win.id)}
-      className="anim-win absolute flex flex-col overflow-hidden outline-none border border-line bg-window backdrop-blur-[28px] backdrop-saturate-[140%]"
+      onAnimationEnd={(e) => e.target === e.currentTarget && win.exiting && finishExit()}
+      className={`${win.exiting === "close" ? "anim-close" : win.exiting === "minimize" ? "anim-min" : "anim-win"} absolute flex flex-col overflow-hidden outline-none border border-line bg-window backdrop-blur-[28px] backdrop-saturate-[140%]`}
       style={{
+        ...exitStyle,
         left: win.x,
         top: win.y,
         width: win.w,
@@ -80,8 +104,8 @@ export function Window({ win, children }: { win: Win; children: ReactNode }) {
         style={{ cursor: win.maximized ? "default" : "grab" }}
       >
         <div className="group flex gap-2">
-          <TrafficLight color="#F87171" label={`Close ${app.label}`} glyph="M8 8l8 8M16 8l-8 8" onClick={() => close(win.id)} />
-          <TrafficLight color="#FBBF24" label={`Minimize ${app.label}`} glyph="M7 12h10" onClick={() => minimize(win.id)} />
+          <TrafficLight color="#F87171" label={`Close ${app.label}`} glyph="M8 8l8 8M16 8l-8 8" onClick={() => requestClose(win.id)} />
+          <TrafficLight color="#FBBF24" label={`Minimize ${app.label}`} glyph="M7 12h10" onClick={() => requestMinimize(win.id)} />
           <TrafficLight
             color="#34D399"
             label={win.maximized ? `Restore ${app.label}` : `Maximize ${app.label}`}

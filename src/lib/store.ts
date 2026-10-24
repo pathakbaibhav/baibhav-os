@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AppId } from "./apps";
+import { motionOK } from "./motion";
 import { SETTINGS_KEY, type Accent, type Theme } from "./theme";
 import * as wm from "./windows";
 
@@ -16,6 +17,9 @@ type OSState = wm.WMState & {
   close: (id: AppId) => void;
   focus: (id: AppId) => void;
   minimize: (id: AppId) => void;
+  /** Close / minimize with the exit animation (instant when motion is reduced). */
+  requestClose: (id: AppId) => void;
+  requestMinimize: (id: AppId) => void;
   toggleMaximize: (id: AppId) => void;
   snap: (id: AppId, side: "left" | "right") => void;
   move: (id: AppId, x: number, y: number) => void;
@@ -34,6 +38,8 @@ export const useOS = create<OSState>()((set) => ({
   close: (id) => set((s) => wm.closeWindow(s, id)),
   focus: (id) => set((s) => wm.focusWindow(s, id)),
   minimize: (id) => set((s) => wm.minimizeWindow(s, id)),
+  requestClose: (id) => set((s) => (motionOK() ? wm.beginExit(s, id, "close") : wm.closeWindow(s, id))),
+  requestMinimize: (id) => set((s) => (motionOK() ? wm.beginExit(s, id, "minimize") : wm.minimizeWindow(s, id))),
   toggleMaximize: (id) => set((s) => wm.toggleMaximize(s, id, viewport())),
   snap: (id, side) => set((s) => wm.snapWindow(s, id, side, viewport())),
   move: (id, x, y) => set((s) => wm.moveWindow(s, id, x, y, viewport())),

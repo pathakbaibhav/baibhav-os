@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   MENU_H,
   MIN_W,
+  beginExit,
   closeWindow,
   cycleFocus,
   emptyWM,
@@ -119,6 +120,31 @@ describe("window manager", () => {
     expect(p.y + p.h).toBeLessThanOrEqual(small.h);
     expect(s.windows.about).toMatchObject({ x: 0, y: MENU_H, w: small.w, h: small.h - MENU_H });
     expect(fitToViewport(s, small)).toBe(s);
+  });
+
+  it("an exiting window hands focus on at once and finishes later", () => {
+    let s = openWindow(emptyWM, "about", vp);
+    s = openWindow(s, "terminal", vp);
+    s = beginExit(s, "terminal", "close");
+    expect(s.windows.terminal?.exiting).toBe("close");
+    expect(s.focused).toBe("about");
+    expect(beginExit(s, "terminal", "close")).toBe(s);
+    s = closeWindow(s, "terminal");
+    expect(s.windows.terminal).toBeUndefined();
+
+    s = beginExit(s, "about", "minimize");
+    expect(s.focused).toBeNull();
+    s = minimizeWindow(s, "about");
+    expect(s.windows.about).toMatchObject({ minimized: true, exiting: undefined });
+  });
+
+  it("re-opening or clicking a window mid-exit cancels the exit", () => {
+    let s = openWindow(emptyWM, "about", vp);
+    s = beginExit(s, "about", "close");
+    expect(openWindow(s, "about", vp).windows.about?.exiting).toBeUndefined();
+    const f = focusWindow(s, "about");
+    expect(f.windows.about?.exiting).toBeUndefined();
+    expect(f.focused).toBe("about");
   });
 
   it("ignores actions on windows that are not open", () => {

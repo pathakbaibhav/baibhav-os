@@ -1,10 +1,13 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PROFILE } from "@/data/profile";
+import { motionOK } from "@/lib/motion";
 
 // Wallpaper D from the design: glass editor panes stacked in 3D, the front one
 // showing the subway route API. Laid out on a fixed stage, then scaled to cover.
+// With motion on, the code types itself, the stack leans toward the pointer and
+// the chips drift; with motion off it is a still image.
 
 const PALETTES = {
   dark: {
@@ -28,6 +31,7 @@ const PALETTES = {
 };
 
 type Palette = (typeof PALETTES)["dark"];
+type Tone = "kw" | "str" | "fn" | "dec";
 
 const abs = (x: number, y: number, w: number, h: number): CSSProperties => ({
   position: "absolute", left: x, top: y, width: w, height: h,
@@ -35,6 +39,64 @@ const abs = (x: number, y: number, w: number, h: number): CSSProperties => ({
 
 const PANE_W = 580;
 const PANE_H = 380;
+
+// The front pane's code as coloured segments, so it can be typed out a character at a time.
+const CODE: [string, Tone?][][] = [
+  [["@app", "dec"], [".get("], ['"/route"', "str"], [")"]],
+  [["async def", "kw"], [" "], ["route", "fn"], ["(src: "], ["str", "kw"], [", dst: "], ["str", "kw"], ["):"]],
+  [["    alerts = "], ["await", "kw"], [" mbta.live_alerts()"]],
+  [["    graph = network.without(alerts.closed)"]],
+  [["    path = dijkstra(graph, src, dst)"]],
+  [["    "], ["return", "kw"], [" {"], ['"path"', "str"], [": path, "], ['"mins"', "str"], [": eta(path)}"]],
+];
+const LINE_LEN = CODE.map((line) => line.reduce((n, [t]) => n + t.length, 0));
+const CODE_LEN = LINE_LEN.reduce((a, b) => a + b, 0);
+
+// The last line cycles through what the real service does (numbers from the resume).
+const STATUS = [
+  "# 200 OK · cache hit · 77%",
+  "# 200 OK · rerouted around a closure",
+  "# 7,750 station pairs · 9× faster",
+];
+
+/** Types the code once, then loops through the status lines. Full text, no motion, when motion is off. */
+function useTyping() {
+  const [chars, setChars] = useState(CODE_LEN);
+  const [status, setStatus] = useState({ i: 0, n: STATUS[0].length });
+  useEffect(() => {
+    if (!motionOK()) return;
+    let c = 0;
+    let si = 0;
+    let sn = 0;
+    let hold = 0;
+    setChars(0);
+    setStatus({ i: 0, n: 0 });
+    const t = setInterval(() => {
+      if (c < CODE_LEN) {
+        c = Math.min(CODE_LEN, c + 2);
+        setChars(c);
+      } else if (sn < STATUS[si].length) {
+        sn += 1;
+        setStatus({ i: si, n: sn });
+      } else if (++hold > 90) {
+        hold = 0;
+        sn = 0;
+        si = (si + 1) % STATUS.length;
+        setStatus({ i: si, n: 0 });
+      }
+    }, 30);
+    return () => clearInterval(t);
+  }, []);
+  return { chars, status: STATUS[status.i].slice(0, status.n) };
+}
+
+function Cursor({ color }: { color: string }) {
+  return (
+    <span
+      style={{ display: "inline-block", width: 9, height: 18, marginLeft: 1, verticalAlign: "-3px", background: color, animation: "blink 1s steps(1) infinite" }}
+    />
+  );
+}
 
 function Dots({ colors }: { colors: string[] }) {
   return (
@@ -76,8 +138,9 @@ function BackPane({ x, y, z, seed, C }: { x: number; y: number; z: number; seed:
 }
 
 function FrontPane({ C }: { C: Palette }) {
-  const k = (s: string) => <span style={{ color: C.kw }}>{s}</span>;
-  const str = (s: string) => <span style={{ color: C.str }}>{s}</span>;
+  const { chars, status } = useTyping();
+  const typing = chars < CODE_LEN;
+  let start = 0;
   return (
     <div
       style={{
@@ -91,53 +154,103 @@ function FrontPane({ C }: { C: Palette }) {
         <span style={{ marginLeft: 12, fontSize: 12, color: C.file }}>route_api.py</span>
       </div>
       <div style={{ padding: "16px 22px", whiteSpace: "pre", color: C.text }}>
-        <div><span style={{ color: C.dec }}>@app</span>.get({str('"/route"')})</div>
-        <div>{k("async def")} <span style={{ color: C.fn }}>route</span>(src: {k("str")}, dst: {k("str")}):</div>
-        <div>    alerts = {k("await")} mbta.live_alerts()</div>
-        <div>    graph = network.without(alerts.closed)</div>
-        <div>    path = dijkstra(graph, src, dst)</div>
-        <div>    {k("return")} {"{"}{str('"path"')}: path, {str('"mins"')}: eta(path){"}"}</div>
-        <div> </div>
-        <div style={{ color: C.comment }}># 200 OK · cache hit · 77%</div>
+        {CODE.map((line, li) => {
+          let left = chars - start;
+          const hasCursor = typing && chars >= start && chars <= start + LINE_LEN[li];
+          start += LINE_LEN[li];
+          return (
+            <div key={li}>
+              {line.map(([t, tone], si) => {
+                const shown = t.slice(0, Math.max(0, left));
+                left -= t.length;
+                return shown ? <span key={si} style={tone ? { color: C[tone] } : undefined}>{shown}</span> : null;
+              })}
+              {hasCursor && <Cursor color={C.kw} />}
+              {" "}
+            </div>
+          );
+        })}
+        <div>{" "}</div>
+        <div style={{ color: C.comment }}>
+          {typing ? "" : status}
+          {!typing && <Cursor color={C.comment} />}
+          {" "}
+        </div>
       </div>
     </div>
   );
 }
 
-const CHIPS: [string, number, number, number, keyof Palette][] = [
+const CHIPS: [string, number, number, number, Tone][] = [
   ["{ }", -90, 40, 160, "fn"],
   ["200 OK", 470, 330, 200, "str"],
   ["</>", 560, -40, 120, "dec"],
   ["async", -60, 290, 120, "kw"],
 ];
 
+/** Leans the stack toward the pointer by writing --px / --py (-1…1) on the element. */
+function useParallax() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let frame = 0;
+    const onMove = (e: PointerEvent) => {
+      if (frame || !motionOK()) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const el = ref.current;
+        if (!el) return;
+        el.style.setProperty("--px", ((e.clientX / window.innerWidth) * 2 - 1).toFixed(3));
+        el.style.setProperty("--py", ((e.clientY / window.innerHeight) * 2 - 1).toFixed(3));
+      });
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+  return ref;
+}
+
 /** The 3D pane stack on its own 1440×900 stage. */
 function Panes({ C }: { C: Palette }) {
+  const tilt = useParallax();
   return (
     <div style={{ ...abs(0, 0, 1440, 900), perspective: 1800 }}>
-      <div style={{ ...abs(520, 90, 560, 460), borderRadius: "50%", background: `radial-gradient(circle, ${C.glow}, transparent 65%)` }} />
       <div
         style={{
+          ...abs(520, 90, 560, 460), borderRadius: "50%", background: `radial-gradient(circle, ${C.glow}, transparent 65%)`,
+          animation: "pulse-glow 8s ease-in-out infinite",
+        }}
+      />
+      <div
+        ref={tilt}
+        style={{
           ...abs(440, 150, PANE_W, PANE_H), transformStyle: "preserve-3d",
-          transform: "rotateY(-28deg) rotateX(12deg)", animation: "pane-float 12s ease-in-out infinite",
+          transform: "rotateY(calc(-28deg + var(--px, 0) * 6deg)) rotateX(calc(12deg - var(--py, 0) * 4deg))",
+          transition: "transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1)",
         }}
       >
-        <BackPane C={C} x={200} y={-120} z={-320} seed={3} />
-        <BackPane C={C} x={100} y={-60} z={-160} seed={7} />
-        <FrontPane C={C} />
-        {CHIPS.map(([t, x, y, z, key]) => (
-          <div
-            key={t}
-            style={{
-              position: "absolute", left: x, top: y, transform: `translateZ(${z}px)`, padding: "8px 14px", borderRadius: 10,
-              fontFamily: "var(--font-mono)", fontSize: 14, color: C[key], background: C.chipBg,
-              border: `1px solid color-mix(in srgb, ${C[key]} 40%, transparent)`,
-              boxShadow: `0 0 24px color-mix(in srgb, ${C[key]} 20%, transparent)`,
-            }}
-          >
-            {t}
-          </div>
-        ))}
+        <div style={{ ...abs(0, 0, PANE_W, PANE_H), transformStyle: "preserve-3d", animation: "pane-float 12s ease-in-out infinite" }}>
+          <BackPane C={C} x={200} y={-120} z={-320} seed={3} />
+          <BackPane C={C} x={100} y={-60} z={-160} seed={7} />
+          <FrontPane C={C} />
+          {CHIPS.map(([t, x, y, z, tone], i) => (
+            <div key={t} style={{ position: "absolute", left: x, top: y, transform: `translateZ(${z}px)` }}>
+              <div
+                style={{
+                  padding: "8px 14px", borderRadius: 10, whiteSpace: "nowrap",
+                  fontFamily: "var(--font-mono)", fontSize: 14, color: C[tone], background: C.chipBg,
+                  border: `1px solid color-mix(in srgb, ${C[tone]} 40%, transparent)`,
+                  boxShadow: `0 0 24px color-mix(in srgb, ${C[tone]} 20%, transparent)`,
+                  animation: `chip-drift ${6 + i * 1.5}s ease-in-out ${-i * 1.7}s infinite`,
+                }}
+              >
+                {t}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -146,7 +259,7 @@ function Panes({ C }: { C: Palette }) {
 export function Wallpaper({ light, dim, scale }: { light: boolean; dim?: boolean; scale: number }) {
   const C = light ? PALETTES.light : PALETTES.dark;
   return (
-    <div aria-hidden="true" className="absolute inset-0 overflow-hidden" style={{ background: C.bg }}>
+    <div aria-hidden="true" className="anim-desk absolute inset-0 overflow-hidden" style={{ background: C.bg }}>
       <div
         style={{
           position: "absolute", left: "50%", top: "50%", width: 1440, height: 900,

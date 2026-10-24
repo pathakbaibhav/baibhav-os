@@ -19,6 +19,8 @@ export type Win = Rect & {
   maximized: boolean;
   restore?: Rect; // rect to go back to after maximize / snap
   params: Record<string, string>;
+  /** Set while the close / minimize animation plays; the window finishes the action when it ends. */
+  exiting?: "close" | "minimize";
 };
 
 export type WMState = {
@@ -34,7 +36,7 @@ const rectOf = (w: Win): Rect => ({ x: w.x, y: w.y, w: w.w, h: w.h });
 function topmost(windows: WMState["windows"], except?: AppId): AppId | null {
   let best: Win | null = null;
   for (const w of Object.values(windows)) {
-    if (!w || w.minimized || w.id === except) continue;
+    if (!w || w.minimized || w.exiting || w.id === except) continue;
     if (!best || w.z > best.z) best = w;
   }
   return best?.id ?? null;
@@ -61,7 +63,7 @@ export function openWindow(s: WMState, id: AppId, vp: Viewport, params: Record<s
   const existing = s.windows[id];
   if (existing) {
     return {
-      ...patch(s, id, { minimized: false, z, params: { ...existing.params, ...params } }),
+      ...patch(s, id, { minimized: false, exiting: undefined, z, params: { ...existing.params, ...params } }),
       topZ: z,
       focused: id,
     };
@@ -69,6 +71,17 @@ export function openWindow(s: WMState, id: AppId, vp: Viewport, params: Record<s
   const openCount = Object.values(s.windows).filter(Boolean).length;
   const win: Win = { id, ...initialRect(id, vp, openCount), z, minimized: false, maximized: false, params };
   return { windows: { ...s.windows, [id]: win }, topZ: z, focused: id };
+}
+
+/**
+ * Start a close or minimize animation. The window loses focus straight away so
+ * the menu bar, URL and keyboard move on while it animates out.
+ */
+export function beginExit(s: WMState, id: AppId, kind: "close" | "minimize"): WMState {
+  const w = s.windows[id];
+  if (!w || w.minimized || w.exiting) return s;
+  const next = patch(s, id, { exiting: kind });
+  return { ...next, focused: s.focused === id ? topmost(next.windows, id) : s.focused };
 }
 
 export function closeWindow(s: WMState, id: AppId): WMState {
@@ -80,14 +93,14 @@ export function closeWindow(s: WMState, id: AppId): WMState {
 
 export function focusWindow(s: WMState, id: AppId): WMState {
   const w = s.windows[id];
-  if (!w || (s.focused === id && w.z === s.topZ)) return s;
+  if (!w || (s.focused === id && w.z === s.topZ && !w.exiting)) return s;
   const z = s.topZ + 1;
-  return { ...patch(s, id, { z, minimized: false }), topZ: z, focused: id };
+  return { ...patch(s, id, { z, minimized: false, exiting: undefined }), topZ: z, focused: id };
 }
 
 export function minimizeWindow(s: WMState, id: AppId): WMState {
   if (!s.windows[id]) return s;
-  const next = patch(s, id, { minimized: true });
+  const next = patch(s, id, { minimized: true, exiting: undefined });
   return { ...next, focused: topmost(next.windows) };
 }
 
@@ -134,7 +147,7 @@ export function moveWindow(s: WMState, id: AppId, x: number, y: number, vp: View
 
 /** ⌥` : bring the bottom-most visible window to the front, so repeated presses visit every window. */
 export function cycleFocus(s: WMState): WMState {
-  const visible = Object.values(s.windows).filter((w): w is Win => !!w && !w.minimized);
+  const visible = Object.values(s.windows).filter((w): w is Win => !!w && !w.minimized && !w.exiting);
   if (visible.length < 2) return s;
   const bottom = visible.reduce((a, b) => (b.z < a.z ? b : a));
   return focusWindow(s, bottom.id);
