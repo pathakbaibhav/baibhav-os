@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PROFILE } from "@/data/profile";
 import { motionOK } from "@/lib/motion";
+import { useSettings } from "@/lib/store";
+import { CIRCUIT, CircuitStage } from "./Circuit";
 
 // Wallpaper D from the design: glass editor panes stacked in 3D, the front one
 // showing the subway route API. Laid out on a fixed stage, then scaled to cover.
@@ -258,8 +260,10 @@ function Panes({ C }: { C: Palette }) {
 
 export function Wallpaper({ light, dim, scale }: { light: boolean; dim?: boolean; scale: number }) {
   const C = light ? PALETTES.light : PALETTES.dark;
+  const circuit = useSettings((s) => s.wallpaper) === "circuit";
+  const bg = circuit ? CIRCUIT[light ? "light" : "dark"].bg : C.bg;
   return (
-    <div aria-hidden="true" className="anim-desk absolute inset-0 overflow-hidden" style={{ background: C.bg }}>
+    <div aria-hidden="true" className="anim-desk absolute inset-0 overflow-hidden" style={{ background: bg }}>
       <div
         style={{
           position: "absolute", left: "50%", top: "50%", width: 1440, height: 900,
@@ -268,7 +272,7 @@ export function Wallpaper({ light, dim, scale }: { light: boolean; dim?: boolean
           filter: dim ? `brightness(${light ? 0.85 : 0.5}) blur(3px)` : undefined,
         }}
       >
-        <Panes C={C} />
+        {circuit ? <CircuitStage light={light} /> : <Panes C={C} />}
         <div style={{ position: "absolute", left: 0, right: 0, top: 650, textAlign: "center", color: C.name, opacity: dim ? 0.2 : 1 }}>
           <div style={{ fontWeight: 800, fontSize: 112, lineHeight: 0.95, letterSpacing: "0.03em" }}>{PROFILE.name.toUpperCase()}</div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, letterSpacing: "0.24em", marginTop: 18, color: C.sub }}>
@@ -280,12 +284,13 @@ export function Wallpaper({ light, dim, scale }: { light: boolean; dim?: boolean
   );
 }
 
-/** Phone home screen: the same pane stack, cropped and scaled into the top of the screen. */
+/** Phone home screen: the chosen wallpaper's stage, cropped and scaled into the top of the screen. */
 export function PhoneWallpaper() {
+  const circuit = useSettings((s) => s.wallpaper) === "circuit";
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[340px] overflow-hidden">
       <div style={{ position: "absolute", left: "50%", top: -40, width: 1440, height: 900, transform: "translateX(-50%) scale(0.5)", transformOrigin: "50% 0" }}>
-        <Panes C={PALETTES.dark} />
+        {circuit ? <CircuitStage light={false} /> : <Panes C={PALETTES.dark} />}
       </div>
     </div>
   );

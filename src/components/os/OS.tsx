@@ -10,6 +10,7 @@ import { Boot } from "./Boot";
 import { DesktopIcons, Dock, MenuBar, Widgets } from "./Chrome";
 import { ContextMenu } from "./ContextMenu";
 import { Launchpad } from "./Launchpad";
+import { FirstVisitHint, Tour } from "./Tour";
 import { Phone } from "./Phone";
 import { Wallpaper } from "./Wallpaper";
 import { Window } from "./Window";
@@ -113,10 +114,10 @@ export function OS({ initial, children }: { initial: Route | null; children?: Re
   if (!mounted) return <div className="fixed inset-0 bg-bg">{children}</div>;
   if (!booted) return <Boot onEnter={enter} />;
   if (isPhone) return <Phone initial={initial} />;
-  return <Desktop light={resolved === "light"} />;
+  return <Desktop light={resolved === "light"} hint={!initial} />;
 }
 
-function Desktop({ light }: { light: boolean }) {
+function Desktop({ light, hint }: { light: boolean; hint: boolean }) {
   useHotkeys();
   useUrlSync();
   const scale = useCoverScale();
@@ -125,7 +126,7 @@ function Desktop({ light }: { light: boolean }) {
     window.addEventListener("resize", fit);
     return () => window.removeEventListener("resize", fit);
   }, []);
-  const { windows, launchpad, setParams } = useOS();
+  const { windows, launchpad, setParams, tour } = useOS();
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const closeMenu = useCallback(() => setMenu(null), []);
   const anyOpen = Object.values(windows).some((w) => w && !w.minimized);
@@ -155,6 +156,8 @@ function Desktop({ light }: { light: boolean }) {
         )}
       </div>
       {launchpad && <Launchpad />}
+      {hint && tour === null && <FirstVisitHint />}
+      {tour !== null && <Tour step={tour} />}
       <Dock />
       {menu && <ContextMenu x={menu.x} y={menu.y} onClose={closeMenu} />}
     </main>

@@ -148,6 +148,7 @@ describe("window manager", () => {
   });
 
   it("ignores actions on windows that are not open", () => {
+    expect(cycleFocus(emptyWM)).toBe(emptyWM);
     expect(closeWindow(emptyWM, "about")).toBe(emptyWM);
     expect(focusWindow(emptyWM, "about")).toBe(emptyWM);
     expect(moveWindow(emptyWM, "about", 1, 1, vp)).toBe(emptyWM);

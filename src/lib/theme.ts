@@ -13,6 +13,8 @@ export type Accent = keyof typeof ACCENTS;
 
 export const SETTINGS_KEY = "baibhavos-settings";
 
+export type WallpaperId = "code" | "circuit";
+
 /**
  * Runs before first paint: applies the saved theme, motion and accent to <html>
  * so light-mode visitors never see a flash of the dark desktop. Mirrors useThemeSync.

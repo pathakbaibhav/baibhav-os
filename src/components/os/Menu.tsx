@@ -7,10 +7,12 @@ import { useEffect, useRef, type CSSProperties } from "react";
 export type MenuItem = {
   label: string;
   keys?: string;
-  run: () => void;
+  run?: () => void;
   sep?: boolean; // draw a separator above this item
   disabled?: boolean;
   checked?: boolean;
+  /** A read-only row (status text); not focusable or clickable. */
+  info?: boolean;
 };
 
 export function MenuList({
@@ -63,13 +65,19 @@ export function MenuList({
       {items.map((it) => (
         <div key={it.label}>
           {it.sep && <div className="mx-2 my-[5px] h-px bg-line" />}
+          {it.info ? (
+            <div role="none" className="flex min-h-8 items-center justify-between gap-3 px-2.5 text-muted">
+              <span>{it.label}</span>
+              {it.keys && <span className="font-mono text-[11px]">{it.keys}</span>}
+            </div>
+          ) : (
           <button
             type="button"
             role={it.checked === undefined ? "menuitem" : "menuitemcheckbox"}
             aria-checked={it.checked}
             disabled={it.disabled}
             onClick={() => {
-              it.run();
+              it.run?.();
               onClose();
             }}
             className="flex min-h-8 w-full cursor-pointer items-center justify-between gap-3 rounded-[7px] px-2.5 text-left text-fg outline-none hover:bg-accent hover:text-[#071016] focus:bg-accent focus:text-[#071016] disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-fg"
@@ -80,6 +88,7 @@ export function MenuList({
             </span>
             {it.keys && <span className="font-mono text-[11px] opacity-70">{it.keys}</span>}
           </button>
+          )}
         </div>
       ))}
     </div>

@@ -13,6 +13,14 @@ describe("spotlight search", () => {
   it("searches project stacks", () => {
     expect(search("fastapi").map((h) => h.label)).toContain("Boston Subway Route Optimizer");
   });
+  it("finds skills, opening the Skills app on that skill", () => {
+    expect(search("systemc")).toContainEqual(expect.objectContaining({ kind: "SKILL", app: "skills", params: { skill: "SystemC" } }));
+  });
+  it("finds OS actions by meaning, but not on a phone", () => {
+    expect(search("dark")).toContainEqual(expect.objectContaining({ kind: "ACTION", action: "toggleTheme" }));
+    expect(search("mute")[0]).toMatchObject({ action: "toggleSound" });
+    expect(search("dark", 8, { actions: false }).some((h) => h.kind === "ACTION")).toBe(false);
+  });
   it("returns nothing for blank queries", () => {
     expect(search("  ")).toEqual([]);
   });

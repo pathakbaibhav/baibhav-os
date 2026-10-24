@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { APPS, DESKTOP_ICONS, DOCK, ICONS, type AppId } from "@/lib/apps";
 import { commands } from "@/lib/commands";
 import { motionOK } from "@/lib/motion";
+import { play } from "@/lib/sound";
 import { useOS, useSettings } from "@/lib/store";
 import type { Win } from "@/lib/windows";
 import { MenuList, type MenuItem } from "./Menu";
@@ -29,6 +30,30 @@ function Clock() {
 }
 
 type MenuName = "File" | "View" | "Window" | "Help";
+type TrayName = "Wi-Fi" | "Battery";
+
+// When this tab loaded baibhavOS; the battery menu reports uptime from it.
+const BOOTED_AT = Date.now();
+
+/** Status menus on the right of the menu bar, macOS-style, with a little fun in them. */
+function trayMenus(motion: boolean): Record<TrayName, MenuItem[]> {
+  const uptime = Math.max(1, Math.round((Date.now() - BOOTED_AT) / 60_000));
+  return {
+    "Wi-Fi": [
+      { label: "baibhavOS-5G", checked: true },
+      { label: "IpserLabs-Guest", keys: "alumni", info: true },
+      { label: "NEU-Wireless", keys: "graduated", info: true },
+      { label: "PPD-Corp", keys: "alumni", info: true },
+      { label: "Network Preferences…", run: () => useOS.getState().open("lab"), sep: true },
+    ],
+    Battery: [
+      { label: "Power source", keys: "coffee", info: true },
+      { label: "Uptime", keys: `${uptime} min`, info: true },
+      { label: "Last crash", keys: "never in prod", info: true },
+      { label: "Energy Saver", checked: !motion, run: commands.toggleMotion, sep: true },
+    ],
+  };
+}
 
 function useMenus(light: boolean): Record<MenuName, MenuItem[]> {
   const { focused, windows, focus } = useOS();
@@ -56,6 +81,7 @@ function useMenus(light: boolean): Record<MenuName, MenuItem[]> {
     ],
     Help: [
       { label: "baibhavOS Help", keys: "?", run: commands.help },
+      { label: "Take the Tour", run: commands.tour },
       { label: "Start Recruiter Tour", run: commands.recruiterTour },
       { label: "About baibhavOS", run: commands.aboutOS, sep: true },
     ],
@@ -68,7 +94,9 @@ export function MenuBar() {
   const setSettings = useSettings((s) => s.set);
   const active = focused && windows[focused] ? APPS[focused].title : "Finder";
   const menus = useMenus(light);
-  const [openMenu, setOpenMenu] = useState<MenuName | null>(null);
+  const { motion, sound } = useSettings();
+  const tray = trayMenus(motion);
+  const [openMenu, setOpenMenu] = useState<MenuName | TrayName | null>(null);
   const bar = useRef<HTMLElement>(null);
   const closeMenu = useCallback(() => setOpenMenu(null), []);
 
@@ -78,7 +106,7 @@ export function MenuBar() {
         <Icon d={ICONS.lab} size={16} strokeWidth={1.8} />
       </button>
       <span className="font-bold text-fg">{active}</span>
-      <nav aria-label="Menus" className="-ml-2 hidden gap-0.5 text-fg2 md:flex">
+      <nav aria-label="Menus" data-tour="menus" className="-ml-2 hidden gap-0.5 text-fg2 md:flex">
         {(Object.keys(menus) as MenuName[]).map((name) => (
           <div key={name} className="relative">
             <button
@@ -99,7 +127,42 @@ export function MenuBar() {
         ))}
       </nav>
       <div className="ml-auto flex items-center gap-4 text-fg2">
-        <button type="button" aria-label="Search (⌘K)" title="Search (⌘K)" onClick={() => setLaunchpad(true, true)} className="flex cursor-pointer">
+        <div data-tour="tray" className="flex items-center gap-4">
+        {(Object.keys(tray) as TrayName[]).map((name) => (
+          <div key={name} className="relative hidden sm:flex">
+            <button
+              type="button"
+              aria-label={name}
+              aria-haspopup="menu"
+              aria-expanded={openMenu === name}
+              onClick={() => setOpenMenu((m) => (m === name ? null : name))}
+              onPointerEnter={() => openMenu && setOpenMenu(name)}
+              className="flex cursor-pointer rounded-md px-1 py-0.5"
+              style={openMenu === name ? { background: "color-mix(in srgb, var(--fg) 12%, transparent)", color: "var(--fg)" } : undefined}
+            >
+              <Icon d={name === "Wi-Fi" ? ICONS.wifi : ICONS.battery} size={16} strokeWidth={1.8} />
+            </button>
+            {openMenu === name && (
+              <MenuList items={tray[name]} label={`${name} menu`} onClose={closeMenu} ignore={bar} style={{ right: 0, top: 27 }} />
+            )}
+          </div>
+        ))}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={sound}
+          aria-label="Interface sounds"
+          title={sound ? "Mute interface sounds" : "Turn on interface sounds"}
+          onClick={() => {
+            commands.toggleSound();
+            if (!sound) play("toggle");
+          }}
+          className="flex cursor-pointer"
+        >
+          <Icon d={sound ? ICONS.volume : ICONS.mute} size={16} strokeWidth={1.8} />
+        </button>
+        </div>
+        <button type="button" data-tour="search" aria-label="Search (⌘K)" title="Search (⌘K)" onClick={() => setLaunchpad(true, true)} className="flex cursor-pointer">
           <Icon d={ICONS.search} size={16} strokeWidth={1.8} />
         </button>
         <button
@@ -133,7 +196,7 @@ export function DesktopIcons() {
   const launch = useLaunch();
   const focused = useOS((s) => s.focused);
   return (
-    <nav aria-label="Desktop" className="absolute left-[26px] top-14 z-[5] hidden w-[110px] flex-col items-center gap-6 sm:flex">
+    <nav aria-label="Desktop" data-tour="desktop" className="absolute left-[26px] top-14 z-[5] hidden w-[110px] flex-col items-center gap-6 sm:flex">
       {DESKTOP_ICONS.map((id) => (
         <button key={id} type="button" onClick={() => launch(id)} className="group flex cursor-pointer flex-col items-center gap-2">
           <span
@@ -174,6 +237,7 @@ export function Dock() {
   return (
     <nav
       aria-label="Dock"
+      data-tour="dock"
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse" || !motionOK()) return;
         for (const [k, el] of Object.entries(buttons.current)) {

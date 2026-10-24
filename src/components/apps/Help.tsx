@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { APPS, LAUNCHPAD_ORDER } from "@/lib/apps";
 import { commands } from "@/lib/commands";
-import { RailDoc, Section, btnGhost, btnSolid, type AppProps } from "./ui";
+import { TOUR_STEPS } from "@/components/os/Tour";
+import { RailDoc, Section, btnSolid, type AppProps } from "./ui";
 
 const SECTIONS = [
   { id: "start", label: "Getting started" },
@@ -11,14 +11,6 @@ const SECTIONS = [
   { id: "keys", label: "Shortcuts" },
   { id: "phone", label: "On a phone" },
   { id: "credits", label: "Credits" },
-];
-
-const STEPS = [
-  { t: "Open anything from the dock", x: "The dock at the bottom holds every app. Click one to open it as a window; the dot underneath means it is running." },
-  { t: "Search with ⌘K", x: 'Press ⌘K (Ctrl+K on Windows) to search apps, projects and commands. Type "asl" to jump straight to a case study.' },
-  { t: "Right-click the desktop", x: "You get quick actions: a new terminal, a wallpaper change, the light/dark switch and the recruiter tour." },
-  { t: "Drag, snap and stack windows", x: "Drag a window by its title bar. Push it to the left or right edge to snap to half the screen. Double-click the title bar to maximize it." },
-  { t: "Make it yours", x: "Open Settings to switch light or dark, pick an accent color, or turn motion effects off." },
 ];
 
 // ⌘T / ⌘W / ⌘` belong to the browser, so baibhavOS uses ⌥ for those.
@@ -35,10 +27,6 @@ const KEYS = [
 ];
 
 export function Help({ params, setParams }: AppProps) {
-  const [step, setStep] = useState(0);
-  const s = STEPS[step];
-  const last = step === STEPS.length - 1;
-
   return (
     <RailDoc sections={SECTIONS} active={params.section ?? "start"} onPick={(section) => setParams({ section })}>
       <Section id="start" n={1} title="Getting started">
@@ -47,35 +35,22 @@ export function Help({ params, setParams }: AppProps) {
           It&apos;s my portfolio, built as a small operating system. Everything you&apos;d find on a resume is an app. Open apps from
           the dock or the desktop, drag windows around, and right-click anywhere for shortcuts.
         </p>
-        <div
-          className="mt-4 flex flex-col gap-5 rounded-2xl border p-[22px] @2xl:flex-row"
-          style={{ background: "color-mix(in srgb, var(--accent) 6%, transparent)", borderColor: "color-mix(in srgb, var(--accent) 25%, transparent)" }}
-        >
-          <div
-            className="flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[14px] font-mono text-lg text-accent"
-            style={{ background: "color-mix(in srgb, var(--accent) 14%, transparent)" }}
-          >
-            {step + 1}
-          </div>
-          <div className="flex flex-1 flex-col gap-1.5" aria-live="polite">
-            <div className="font-mono text-[11px] text-muted">TOUR · STEP {step + 1} OF {STEPS.length}</div>
-            <div className="text-[19px] font-bold">{s.t}</div>
-            <div className="text-sm leading-relaxed text-fg2">{s.x}</div>
-            <div className="mt-2 flex gap-1.5" aria-hidden="true">
-              {STEPS.map((_, k) => (
-                <span key={k} className="h-1.5 rounded-[3px]" style={{ width: k === step ? 22 : 6, background: k === step ? "var(--accent)" : "var(--line)" }} />
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-2 @2xl:flex-col @2xl:justify-center">
-            <button type="button" className={`${btnSolid} cursor-pointer justify-center`} onClick={() => setStep(last ? 0 : step + 1)}>
-              {last ? "Done" : "Next"}
-            </button>
-            <button type="button" className={`${btnGhost} cursor-pointer justify-center`} onClick={() => setStep(Math.max(0, step - 1))}>
-              Back
-            </button>
-          </div>
+        <div className="mt-5 flex flex-wrap gap-2.5">
+          <button type="button" onClick={commands.tour} className={`${btnSolid} cursor-pointer`}>
+            Start the guided tour →
+          </button>
         </div>
+        <ol className="mt-5 flex flex-col">
+          {TOUR_STEPS.map((t, i) => (
+            <li key={t.title} className="flex gap-4 border-t border-hair py-3">
+              <span className="w-6 flex-none font-mono text-xs text-muted">{String(i + 1).padStart(2, "0")}</span>
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm font-semibold">{t.title}</span>
+                <span className="text-[13px] leading-relaxed text-fg2">{t.text}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
         <button
           type="button"
           onClick={commands.recruiterTour}

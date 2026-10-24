@@ -46,6 +46,10 @@ export const ICONS = {
   sun: "M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 3v2M12 19v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M3 12h2M19 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
   moon: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
   back: "M15 6l-6 6 6 6",
+  wifi: "M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01",
+  battery: "M3 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM22 11v2M7 10v4M10 10v4M13 10v4",
+  volume: "M4 9v6h4l5 4V5L8 9zM16.5 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11",
+  mute: "M4 9v6h4l5 4V5L8 9zM17 9l4 6M21 9l-4 6",
 } as const;
 
 const app = (
@@ -68,7 +72,7 @@ export const APPS: Record<AppId, AppMeta> = {
   github: app("github", "GitHub", "#2D9C6A", 520, 360, "My contribution graph, recent commits and pinned repositories, pulled live.", false),
   writing: app("writing", "Writing", "#C2557A", 520, 360, "Build logs and deep dives on the projects.", false),
   contact: app("contact", "Contact", "#D9506A", 560, 440, "Send me a message, or grab my email and links."),
-  settings: app("settings", "Settings", "#5A6272", 800, 640, "Theme, accent color, wallpaper, sound and motion."),
+  settings: app("settings", "Settings", "#5A6272", 940, 660, "Theme, accent color, wallpaper, sound and motion."),
   help: app("help", "Help", "#C9862E", 1080, 700, "How baibhavOS works: a quick tour, every app, shortcuts and phone tips."),
   arcade: app("arcade", "Arcade", "#3BA55C", 520, 360, "Small games, for when you need a break.", false),
 };

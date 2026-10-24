@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { APPS, ICONS, LAUNCHPAD_ORDER } from "@/lib/apps";
+import { commands } from "@/lib/commands";
 import { search } from "@/lib/search";
 import { useOS } from "@/lib/store";
 
@@ -19,7 +20,11 @@ export function Launchpad() {
 
   const pick = (i: number) => {
     const hit = results[i];
-    if (hit) open(hit.app, hit.params);
+    if (!hit) return;
+    if (hit.action) {
+      setLaunchpad(false);
+      commands[hit.action]();
+    } else if (hit.app) open(hit.app, hit.params);
   };
 
   return (
@@ -37,7 +42,7 @@ export function Launchpad() {
             ref={input}
             value={q}
             autoComplete="off"
-            placeholder="Search apps, projects, commands…"
+            placeholder="Search apps, projects, skills, actions…"
             onChange={(e) => {
               setQ(e.target.value);
               setActive(0);

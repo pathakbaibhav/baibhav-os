@@ -34,7 +34,7 @@ src/
 - **Window logic** is pure functions in `src/lib/windows.ts`, wrapped by a Zustand store in `src/lib/store.ts`, so it is unit-tested without React.
 - **URLs**: every app has a page (`/about`, `/terminal`, …) and every case study has `/projects/<slug>` (`src/lib/routes.ts`). A deep link boots straight into that window, and the address bar follows the focused window. Each page also ships a server-rendered text version (`src/components/seo/Summary.tsx`) for crawlers and screen readers, plus its own title, description and canonical URL. Set `NEXT_PUBLIC_SITE_URL` to the live domain.
 - **Commands**: the menu bar, right-click menu and keyboard shortcuts all call `src/lib/commands.ts`.
-- **Theme**: dark is the default; `<html data-theme="light">` switches the CSS tokens in `globals.css`. Settings persists theme, accent, motion and sound in `localStorage`.
+- **Theme**: dark is the default; `<html data-theme="light">` switches the CSS tokens in `globals.css`. Settings persists theme, accent, wallpaper, motion and sound in `localStorage`; interface sounds are synthesised in `src/lib/sound.ts`, and the guided tour lives in `src/components/os/Tour.tsx` (steps point at `data-tour` targets).
 
 ## Placeholders
 
@@ -47,7 +47,7 @@ Text in `[brackets]` in `src/data/` is waiting for real content: the "Now" line,
 | 0 | Project setup, content data, CI ✅ |
 | 1 | OS core: desktop, menu bar, dock, window manager, dark/light, a URL per app ✅ |
 | 2 | Look and feel: 3D code-pane wallpaper, boot screen, motion ✅ |
-| 3 | Content apps: About, Projects + case studies, Resume, Skills, Contact |
+| 3 | Content apps: About, Projects + case studies, Resume, Skills, Contact ✅ |
 | 4 | System apps: Help + tours, Settings, Launchpad, Spotlight, right-click menu |
 | 5 | Phone layout |
 | 6 | Live data: terminal + Lab on real APIs, GitHub, Writing, Arcade |

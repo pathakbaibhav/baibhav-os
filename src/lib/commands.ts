@@ -19,6 +19,10 @@ export const commands = {
   help: () => os().open("help"),
   aboutOS: () => os().open("help", { section: "credits" }),
   settings: () => os().open("settings"),
+  wallpaper: () => os().open("settings", { section: "wallpaper" }),
+  /** Energy Saver in the battery menu: motion off (or back on). */
+  toggleMotion: () => useSettings.getState().set({ motion: !useSettings.getState().motion }),
+  toggleSound: () => useSettings.getState().set({ sound: !useSettings.getState().sound }),
   closeWindow: withFocused((id) => os().requestClose(id)),
   minimize: withFocused((id) => os().requestMinimize(id)),
   maximize: withFocused((id) => os().toggleMaximize(id)),
@@ -29,6 +33,7 @@ export const commands = {
     const light = document.documentElement.dataset.theme === "light";
     useSettings.getState().set({ theme: light ? "dark" : "light" });
   },
+  tour: () => os().startTour(),
   /** About → Projects → Resume, opened one after another for a recruiter in a hurry. */
   recruiterTour: () => {
     os().open("about");

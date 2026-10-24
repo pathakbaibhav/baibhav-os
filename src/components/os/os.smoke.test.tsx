@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { TOUR_STEPS } from "./Tour";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { LAUNCHPAD_ORDER, APPS } from "@/lib/apps";
 import { useOS, useSettings } from "@/lib/store";
@@ -123,6 +124,79 @@ describe("desktop smoke test", () => {
     expect(screen.getByRole("tab", { name: "PDF" }).getAttribute("aria-selected")).toBe("true");
     act(() => screen.getByRole("button", { name: "Open the Read view" }).click());
     expect(screen.getByRole("tab", { name: "Read" }).getAttribute("aria-selected")).toBe("true");
+    expect(errors).toEqual([]);
+  });
+
+  it("the guided tour tucks windows away, walks every step and restores them", () => {
+    render(<OS initial={{ app: "about", params: {} }} />);
+    act(() => useOS.getState().open("terminal"));
+    act(() => commands.tour());
+    expect(useOS.getState().windows.about?.minimized).toBe(true);
+    const dialog = () => screen.getByRole("dialog");
+    expect(dialog().textContent).toContain("Everything lives in the dock");
+    for (let i = 1; i < TOUR_STEPS.length; i++) {
+      act(() => screen.getByRole("button", { name: "Next" }).click());
+      expect(dialog().textContent).toContain(TOUR_STEPS[i].title);
+    }
+    act(() => screen.getByRole("button", { name: "Done" }).click());
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(useOS.getState().windows.about?.minimized).toBe(false);
+    expect(useOS.getState().focused).toBe("terminal");
+    expect(errors).toEqual([]);
+  });
+
+  it("first visit offers the tour once", () => {
+    vi.useFakeTimers();
+    try {
+      localStorage.removeItem("baibhavos-hint-seen");
+      sessionStorage.setItem("baibhavos-booted", "1");
+      render(<OS initial={null} />);
+      act(() => vi.advanceTimersByTime(1500));
+      act(() => screen.getByRole("button", { name: "Start tour" }).click());
+      expect(screen.getByRole("dialog")).toBeTruthy();
+      expect(localStorage.getItem("baibhavos-hint-seen")).toBe("1");
+      act(() => useOS.getState().endTour());
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(errors).toEqual([]);
+  });
+
+  it("status menus: Wi-Fi opens, Energy Saver turns motion off", () => {
+    render(<OS initial={null} />);
+    act(() => screen.getByRole("button", { name: "Wi-Fi" }).click());
+    expect(screen.getByRole("menu", { name: "Wi-Fi menu" }).textContent).toContain("baibhavOS-5G");
+    act(() => screen.getByRole("button", { name: "Battery" }).click());
+    act(() => useSettings.getState().set({ motion: true }));
+    act(() => screen.getByRole("menuitemcheckbox", { name: /Energy Saver/ }).click());
+    expect(useSettings.getState().motion).toBe(false);
+    act(() => screen.getByRole("switch", { name: "Interface sounds" }).click());
+    expect(useSettings.getState().sound).toBe(true);
+    act(() => useSettings.getState().set({ motion: true, sound: false }));
+    expect(errors).toEqual([]);
+  });
+
+  it("Settings switches wallpaper", () => {
+    render(<OS initial={{ app: "settings", params: { section: "wallpaper" } }} />);
+    act(() => screen.getByRole("radio", { name: /^Circuit/ }).click());
+    expect(useSettings.getState().wallpaper).toBe("circuit");
+    act(() => screen.getByRole("radio", { name: /^Code/ }).click());
+    expect(useSettings.getState().wallpaper).toBe("code");
+    expect(errors).toEqual([]);
+  });
+
+  it("Spotlight runs actions and opens skills", () => {
+    render(<OS initial={null} />);
+    act(() => commands.spotlight());
+    const box = screen.getByRole("textbox", { name: "Search baibhavOS" }) as HTMLInputElement;
+    act(() => fireEvent.change(box, { target: { value: "systemc" } }));
+    act(() => screen.getAllByRole("option").find((o) => o.textContent?.includes("SKILL"))!.querySelector("button")!.click());
+    expect(window.location.pathname).toBe("/skills");
+    act(() => commands.spotlight());
+    const theme = document.documentElement.dataset.theme;
+    act(() => fireEvent.change(screen.getByRole("textbox", { name: "Search baibhavOS" }), { target: { value: "dark" } }));
+    act(() => screen.getAllByRole("option").find((o) => o.textContent?.includes("ACTION"))!.querySelector("button")!.click());
+    expect(document.documentElement.dataset.theme).not.toBe(theme);
     expect(errors).toEqual([]);
   });
 

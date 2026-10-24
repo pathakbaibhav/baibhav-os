@@ -37,7 +37,7 @@ export function Phone({ initial }: { initial: Route | null }) {
   }, [path, title]);
   const [searching, setSearching] = useState(false);
   const [q, setQ] = useState("");
-  const results = search(q);
+  const results = search(q, 8, { actions: false });
   const launch = (id: AppId, params: Record<string, string> = {}) => {
     setApp({ id, params });
     setSearching(false);
@@ -108,7 +108,7 @@ export function Phone({ initial }: { initial: Route | null }) {
             <button
               key={r.kind + r.label}
               type="button"
-              onClick={() => launch(r.app, r.params)}
+              onClick={() => r.app && launch(r.app, r.params)}
               className="flex min-h-11 cursor-pointer items-center justify-between rounded-xl bg-[rgba(30,33,40,0.85)] px-4 text-left"
             >
               <span>{r.label}</span>
