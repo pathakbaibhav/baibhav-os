@@ -61,8 +61,8 @@ const app = (
 export const APPS: Record<AppId, AppMeta> = {
   about: app("about", "About Me", "#2F6FED", 1080, 700, "Who I am: overview, journey, what drives me, what I am doing now."),
   projects: app("projects", "Projects", "#E8893C", 1120, 700, "Filterable index of my work, with a full case study for each project."),
-  resume: app("resume", "Resume", "#D9A43A", 520, 360, "Read it in the browser, or switch to the PDF and download it.", false),
-  skills: app("skills", "Skills", "#8B6CF0", 520, 360, "What I use, grouped and rated by how deep I go with each tool.", false),
+  resume: app("resume", "Resume", "#D9A43A", 1000, 700, "My resume: summary, experience, projects, skills and education."),
+  skills: app("skills", "Skills", "#8B6CF0", 1000, 660, "Every tool I use, and the jobs and projects where I used it."),
   terminal: app("terminal", "Terminal", "#2B3140", 880, 580, "A working shell. Try help, projects or route park-street harvard."),
   lab: app("lab", "Lab", "#1C9DB8", 1120, 700, "Live status, latency and traffic for the APIs I run."),
   github: app("github", "GitHub", "#2D9C6A", 520, 360, "My contribution graph, recent commits and pinned repositories, pulled live.", false),

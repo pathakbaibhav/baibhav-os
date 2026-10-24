@@ -93,6 +93,39 @@ describe("desktop smoke test", () => {
     expect(errors).toEqual([]);
   });
 
+  it("Skills links to the projects that used a skill, and on into their case studies", () => {
+    render(<OS initial={{ app: "skills", params: {} }} />);
+    act(() => screen.getByRole("button", { name: "SystemC 1" }).click());
+    const used = screen.getByRole("complementary", { name: "Where SystemC was used" });
+    act(() => used.querySelector("button")!.click());
+    expect(window.location.pathname).toBe("/projects/vit-soc");
+    expect(screen.getByText("Parallel patches and fixed-point maths cut latency by 30%.")).toBeTruthy();
+    expect(errors).toEqual([]);
+  });
+
+  it("every project has a case study reachable from the Resume", () => {
+    render(<OS initial={{ app: "resume", params: {} }} />);
+    for (const slug of ["asl-engine", "subway-optimizer", "vit-soc", "cellular-drone"]) {
+      act(() => useOS.getState().focus("resume"));
+      const row = screen.getAllByRole("button").find((b) => b.textContent?.includes("Case study →") && b.textContent.includes(slug === "asl-engine" ? "ASL" : slug === "subway-optimizer" ? "Subway" : slug === "vit-soc" ? "Vision" : "Drone"));
+      act(() => row!.click());
+      expect(window.location.pathname).toBe(`/projects/${slug}`);
+      expect(screen.queryByText(/Full case study coming/)).toBeNull();
+    }
+    expect(errors).toEqual([]);
+  });
+
+  it("Resume switches between the Read and PDF views", () => {
+    render(<OS initial={{ app: "resume", params: {} }} />);
+    expect(screen.getByRole("tab", { name: "Read" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("heading", { level: 1, name: "Baibhav Pathak" })).toBeTruthy();
+    act(() => screen.getByRole("tab", { name: "PDF" }).click());
+    expect(screen.getByRole("tab", { name: "PDF" }).getAttribute("aria-selected")).toBe("true");
+    act(() => screen.getByRole("button", { name: "Open the Read view" }).click());
+    expect(screen.getByRole("tab", { name: "Read" }).getAttribute("aria-selected")).toBe("true");
+    expect(errors).toEqual([]);
+  });
+
   it("menu commands run without errors", () => {
     render(<OS initial={{ app: "about", params: {} }} />);
     act(() => {

@@ -2,6 +2,8 @@ import type { AppId } from "./apps";
 import { APPS } from "./apps";
 import { PROFILE } from "@/data/profile";
 import { PROJECTS } from "@/data/projects";
+import { JOBS } from "@/data/experience";
+import { SKILLS } from "@/data/skills";
 
 export type LineKind = "cmd" | "out" | "err" | "dim" | "ok";
 export type Line = { text: string; kind: LineKind };
@@ -17,6 +19,12 @@ export const PROMPT = "baibhav@os ❯";
 
 const out = (...texts: string[]): Line[] => texts.map((text) => ({ text, kind: "out" }));
 
+/** "Sep 2025 – Jul 2026" → "2025–26". */
+export const yearSpan = (dates: string): string => {
+  const [a, b] = dates.match(/\d{4}/g) ?? [];
+  return b && b !== a ? `${a}–${b.slice(2)}` : (a ?? dates);
+};
+
 const COMMANDS: Record<string, () => CommandResult> = {
   help: () => ({
     lines: out("whoami · projects · experience · stack · route <from> <to> · open <app> · contact · resume · sudo hire-me · clear"),
@@ -29,9 +37,9 @@ const COMMANDS: Record<string, () => CommandResult> = {
     })),
   }),
   experience: () => ({
-    lines: out("2025–26  Software Engineer · IpserLabs", "2021–23  Software Engineer · PPD (Thermo Fisher)"),
+    lines: out(...JOBS.map((j) => `${yearSpan(j.dates)}  ${j.role} · ${j.company}`)),
   }),
-  stack: () => ({ lines: out("python go typescript fastapi flask node aws azure docker postgres") }),
+  stack: () => ({ lines: out(...SKILLS.map((g) => `${g.name.padEnd(16)} ${g.items.join(", ")}`)) }),
   contact: () => ({
     lines: out(`email     ${PROFILE.email}`, "github    /pathakbaibhav", "linkedin  /baibhavkp"),
   }),

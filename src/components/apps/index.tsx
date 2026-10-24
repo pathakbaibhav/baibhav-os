@@ -10,7 +10,9 @@ import { Contact } from "./Contact";
 import { Help } from "./Help";
 import { Lab } from "./Lab";
 import { Projects } from "./Projects";
+import { Resume } from "./Resume";
 import { Settings } from "./Settings";
+import { Skills } from "./Skills";
 import { Terminal } from "./Terminal";
 import type { AppProps } from "./ui";
 
@@ -34,6 +36,8 @@ function ComingSoon({ id }: { id: AppId }) {
 const REGISTRY: Partial<Record<AppId, ComponentType<AppProps>>> = {
   about: About,
   projects: Projects,
+  resume: Resume,
+  skills: Skills,
   terminal: Terminal,
   help: Help,
   settings: Settings,

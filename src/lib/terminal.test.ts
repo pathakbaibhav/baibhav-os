@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PROMPT, runCommand } from "./terminal";
+import { PROMPT, runCommand, yearSpan } from "./terminal";
 import { PROJECTS, filterProjects } from "@/data/projects";
 import { search } from "./search";
 
@@ -31,6 +31,16 @@ describe("terminal", () => {
 
   it("lists every project", () => {
     expect(runCommand("projects").lines).toHaveLength(PROJECTS.length + 1);
+  });
+
+  it("experience and stack come from the resume data", () => {
+    expect(runCommand("experience").lines.slice(1).map((l) => l.text)).toEqual([
+      "2025–26  Software Engineer · IpserLabs",
+      "2021–23  Software Engineer, Backend & Automation · PPD (Thermo Fisher)",
+    ]);
+    expect(runCommand("stack").lines[1].text).toMatch(/^Languages\s+Python, Go/);
+    expect(yearSpan("Aug 2016 – Sep 2020")).toBe("2016–20");
+    expect(yearSpan("May 2025")).toBe("2025");
   });
 
   it("clear wipes the screen", () => {

@@ -117,7 +117,8 @@ export function Window({ win, children }: { win: Win; children: ReactNode }) {
           {windowTitle(win)}
         </span>
       </div>
-      <div className="relative min-h-0 flex-1">{children}</div>
+      {/* The container apps size their layout against (@3xl: etc.); an element can't query its own size. */}
+      <div className="@container relative min-h-0 flex-1">{children}</div>
       {!win.maximized && (
         <div
           aria-hidden="true"

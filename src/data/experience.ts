@@ -1,5 +1,11 @@
 // Work and education, newest first. Read by the Resume app and the terminal.
 
+export const RESUME_SUMMARY =
+  "Software engineer specialising in backend systems, automation platforms and API development with Python, Node.js and cloud technologies. Experienced in building scalable services, CI/CD workflows and data pipelines with cross-functional teams, delivering reliable, maintainable software.";
+
+/** Public path of the downloadable resume, e.g. "/resume.pdf" once the file is in /public. */
+export const RESUME_PDF: string | null = null;
+
 export type Job = {
   id: string;
   company: string;
@@ -36,7 +42,7 @@ export const JOBS: Job[] = [
       "Led Azure SQL extraction via Microsoft Graph API; ran Jenkins CI/CD; 95% resolution rate at third-level support.",
       "Mentored junior engineers and worked directly with 200+ end users across macOS and Windows.",
     ],
-    tags: ["Python", "PowerShell", "AWS", "Azure", "Jenkins", "Graph API"],
+    tags: ["Python", "PowerShell", "Shell", "AWS", "Azure", "Azure SQL", "Jenkins", "Microsoft Graph API"],
   },
 ];
 

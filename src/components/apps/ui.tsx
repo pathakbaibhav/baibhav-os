@@ -12,26 +12,35 @@ export const btnSolid =
 export const btnGhost =
   "inline-flex min-h-11 items-center rounded-[10px] border border-line px-[18px] text-sm text-fg no-underline hover:border-accent";
 
-/** Left rail + scrolling document, used by About and Help. Rail collapses to chips in narrow windows. */
+/** Left rail + scrolling document, used by About, Help and Resume. Rail collapses to chips in narrow windows. */
 export function RailDoc({
   sections,
   active,
   onPick,
+  label,
   footer,
   children,
 }: {
   sections: { id: string; label: string }[];
   active: string;
   onPick: (id: string) => void;
+  /** Small heading above the rail in wide windows, e.g. "Resume". */
+  label?: string;
   footer?: ReactNode;
   children: ReactNode;
 }) {
   const doc = useRef<HTMLDivElement>(null);
 
   // Scroll to the requested section whenever it changes (rail click or a deep link).
+  // On first open the first section stays at the top, so any header above it is visible.
+  const first = useRef(true);
   useEffect(() => {
+    const opening = first.current;
+    first.current = false;
+    if (opening && active === sections[0]?.id) return;
     const el = doc.current?.querySelector<HTMLElement>(`[data-section="${active}"]`);
-    if (el && doc.current) doc.current.scrollTo({ top: el.offsetTop - 24, behavior: "smooth" });
+    if (el && doc.current) doc.current.scrollTo({ top: el.offsetTop - 24, behavior: opening ? "auto" : "smooth" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   return (
@@ -40,6 +49,7 @@ export function RailDoc({
         aria-label="Sections"
         className="flex flex-none gap-1 overflow-x-auto border-b border-hair px-3 py-2 @3xl:w-[210px] @3xl:flex-col @3xl:gap-0.5 @3xl:border-b-0 @3xl:border-r @3xl:px-3.5 @3xl:py-6"
       >
+        {label && <div className="eyebrow mb-3 hidden border-b border-hair px-3 pb-4 !text-muted @3xl:block">{label}</div>}
         {sections.map((s, i) => (
           <button
             key={s.id}

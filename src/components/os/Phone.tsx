@@ -61,7 +61,7 @@ export function Phone({ initial }: { initial: Route | null }) {
             <span className="text-[22px] font-extrabold leading-tight">{APPS[app.id].label}</span>
           </div>
         </header>
-        <div className="relative min-h-0 flex-1">
+        <div className="@container relative min-h-0 flex-1">
           <AppContent
             id={app.id}
             params={app.params}
