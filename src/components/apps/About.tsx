@@ -37,6 +37,7 @@ export function About({ params, setParams }: AppProps) {
             width={400}
             height={500}
             sizes="200px"
+            priority
             className="h-[250px] w-[200px] flex-none rounded-2xl border border-line object-cover shadow-[0_12px_32px_var(--shadow)]"
           />
           <div className="flex flex-1 flex-col gap-3.5">

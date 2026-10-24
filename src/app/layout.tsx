@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { SITE_DESCRIPTION, SITE_URL, titleFor } from "@/lib/routes";
+import { ogImageFor } from "@/lib/og";
 import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
@@ -25,7 +26,9 @@ export const metadata: Metadata = {
   title: titleFor(null),
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
-  openGraph: { type: "website", siteName: "baibhavOS", title: titleFor(null), description: SITE_DESCRIPTION, url: "/" },
+  openGraph: { type: "website", siteName: "baibhavOS", title: titleFor(null), description: SITE_DESCRIPTION, url: "/", images: ogImageFor("/", titleFor(null)) },
+  twitter: { card: "summary_large_image" },
+  appleWebApp: { title: "baibhavOS", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

@@ -41,7 +41,7 @@ src/
 
 ## Placeholders
 
-Text in `[brackets]` in `src/data/` is waiting for real content: the "Now" line, the origin story in the About journey, the "Currently" rows, and the case-study demo GIF and "what didn't work" story.
+Still to come: the Zoppler bullet points, the ViT update and the first Writing posts.
 
 ## Roadmap
 
@@ -53,6 +53,6 @@ Text in `[brackets]` in `src/data/` is waiting for real content: the "Now" line,
 | 3 | Content apps: About, Projects + case studies, Resume, Skills, Contact ✅ |
 | 4 | System apps: Help + tours, Settings, Launchpad, Spotlight, right-click menu ✅ |
 | 5 | Phone layout ✅ |
-| 6 | Live data: terminal + Lab on real APIs, GitHub, Writing, Arcade |
-| 7 | Content: real copy, photos, demos and posts from the questionnaire (`content-inbox/QUESTIONNAIRE.md`) |
-| 8 | Polish and launch: performance, accessibility, link previews, Vercel, domain |
+| 6 | Live data: terminal + Lab on real APIs, GitHub, Writing, Arcade ✅ |
+| 7 | Content: real copy, photos, demos and posts from the questionnaire (`content-inbox/QUESTIONNAIRE.md`) ✅ |
+| 8 | Polish and launch: performance, accessibility, link previews, Vercel ✅ (custom domain later) |

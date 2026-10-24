@@ -15,7 +15,6 @@ export const stationName = (id: string) => NAMES.get(id) ?? id;
 const graph = new TransitGraph(NETWORK);
 const planner = new RoutePlanner(graph);
 
-export const cacheStats = () => ({ hits: planner.hits, misses: planner.misses });
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 

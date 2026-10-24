@@ -19,6 +19,22 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_BUILD_SHA: commit(),
     NEXT_PUBLIC_BUILD_DATE: new Date().toISOString().slice(0, 10),
   },
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // Nobody frames the OS; the Resume app frames its own PDF, which SAMEORIGIN allows.
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

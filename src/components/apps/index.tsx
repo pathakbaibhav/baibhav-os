@@ -1,42 +1,27 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { Icon } from "@/components/Icon";
+import dynamic from "next/dynamic";
 import { APPS, type AppId } from "@/lib/apps";
 import { PROJECTS } from "@/data/projects";
 import type { Win } from "@/lib/windows";
-import { About } from "./About";
-import { Arcade } from "./Arcade";
-import { Contact } from "./Contact";
-import { GitHub } from "./GitHub";
-import { Help } from "./Help";
-import { Lab } from "./Lab";
-import { Projects } from "./Projects";
-import { Resume } from "./Resume";
-import { Settings } from "./Settings";
-import { Skills } from "./Skills";
-import { Terminal } from "./Terminal";
-import { Writing } from "./Writing";
 import type { AppProps } from "./ui";
 
-function ComingSoon({ id }: { id: AppId }) {
-  const app = APPS[id];
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 px-8 text-center">
-      <span
-        className="flex h-16 w-16 items-center justify-center rounded-[18px]"
-        style={{ background: `linear-gradient(160deg, ${app.color} 0%, ${app.color}AA 55%, #12151C 140%)` }}
-      >
-        <Icon d={app.icon} size={30} stroke="#FFFFFF" />
-      </span>
-      <h1 className="text-xl font-bold">{app.label} is still compiling.</h1>
-      <p className="max-w-[340px] text-sm leading-relaxed text-fg2">This app ships in a later build of baibhavOS.</p>
-      <p className="font-mono text-xs text-muted">[ coming soon ]</p>
-    </div>
-  );
-}
+// Each app is its own chunk, fetched when its window first opens.
+const About = dynamic<AppProps>(() => import("./About").then((m) => m.About));
+const Arcade = dynamic<AppProps>(() => import("./Arcade").then((m) => m.Arcade));
+const Contact = dynamic<AppProps>(() => import("./Contact").then((m) => m.Contact));
+const GitHub = dynamic<AppProps>(() => import("./GitHub").then((m) => m.GitHub));
+const Help = dynamic<AppProps>(() => import("./Help").then((m) => m.Help));
+const Lab = dynamic<AppProps>(() => import("./Lab").then((m) => m.Lab));
+const Projects = dynamic<AppProps>(() => import("./Projects").then((m) => m.Projects));
+const Resume = dynamic<AppProps>(() => import("./Resume").then((m) => m.Resume));
+const Settings = dynamic<AppProps>(() => import("./Settings").then((m) => m.Settings));
+const Skills = dynamic<AppProps>(() => import("./Skills").then((m) => m.Skills));
+const Terminal = dynamic<AppProps>(() => import("./Terminal").then((m) => m.Terminal));
+const Writing = dynamic<AppProps>(() => import("./Writing").then((m) => m.Writing));
 
-const REGISTRY: Partial<Record<AppId, ComponentType<AppProps>>> = {
+const REGISTRY: Record<AppId, ComponentType<AppProps>> = {
   about: About,
   projects: Projects,
   resume: Resume,
@@ -53,7 +38,7 @@ const REGISTRY: Partial<Record<AppId, ComponentType<AppProps>>> = {
 
 export function AppContent({ id, ...props }: AppProps & { id: AppId }) {
   const C = REGISTRY[id];
-  return C ? <C {...props} /> : <ComingSoon id={id} />;
+  return <C {...props} />;
 }
 
 export function windowTitle(win: Pick<Win, "id" | "params">): string {

@@ -89,11 +89,17 @@ export function Phone() {
   const current = fw && !fw.minimized ? fw : undefined;
   const back = usePhoneHistory(current);
   const views = <PageViews path={pathFor(current?.id ?? null, current?.params)} />;
+  // A deep link is already open when the page loads: show it at once. Sliding it
+  // in from transparent would also hide the first paint from Chrome's FCP/LCP.
+  const loaded = useRef(false);
+  useEffect(() => {
+    loaded.current = true;
+  }, []);
 
   if (current) {
     return (
       <>
-        <AppScreen key={current.id} win={current} onBack={back} onHome={() => Object.keys(windows).forEach((id) => close(id as AppId))} setParams={setParams} />
+        <AppScreen key={current.id} win={current} animate={loaded.current} onBack={back} onHome={() => Object.keys(windows).forEach((id) => close(id as AppId))} setParams={setParams} />
         {views}
       </>
     );
@@ -108,11 +114,13 @@ export function Phone() {
 
 function AppScreen({
   win,
+  animate,
   onBack,
   onHome,
   setParams,
 }: {
   win: Win;
+  animate: boolean;
   onBack: () => void;
   onHome: () => void;
   setParams: (id: AppId, p: Record<string, string>) => void;
@@ -134,7 +142,7 @@ function AppScreen({
 
   return (
     <div
-      className="anim-sheet fixed inset-0 flex flex-col bg-bg"
+      className={`${animate ? "anim-sheet " : ""}fixed inset-0 flex flex-col bg-bg`}
       style={{
         transform: pull ? `translateY(${pull}px)` : undefined,
         opacity: pull ? Math.max(0.4, 1 - pull / 400) : undefined,

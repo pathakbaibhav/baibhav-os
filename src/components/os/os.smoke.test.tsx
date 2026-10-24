@@ -7,6 +7,7 @@ import { useOS, useSettings } from "@/lib/store";
 import { emptyWM } from "@/lib/windows";
 import { commands } from "@/lib/commands";
 import { OS } from "./OS";
+import { AppContent } from "@/components/apps";
 
 // Renders the real desktop in jsdom and drives it the way a visitor would.
 // Any React warning (e.g. an unstable store selector looping) fails the test.
@@ -21,6 +22,7 @@ beforeAll(() => {
   HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
 });
 
+
 // The site's own API, faked: no network in tests.
 const GITHUB = {
   ok: true, login: "pathakbaibhav", url: "https://github.com/pathakbaibhav", publicRepos: 15, followers: 2, fetchedAt: new Date().toISOString(),
@@ -30,16 +32,28 @@ const GITHUB = {
 };
 let contactStatus = 503;
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+const fakeFetch = async (url: string) => {
+  if (url.startsWith("/api/github")) return json(GITHUB);
+  if (url.startsWith("/api/mbta/alerts")) return json({ ok: true, alerts: [], upstreamMs: 40, fetchedAt: new Date().toISOString() });
+  if (url.startsWith("/api/contact")) return json({ ok: contactStatus === 200 }, contactStatus);
+  throw new Error(`unexpected fetch ${url}`);
+};
 beforeEach(() => {
   contactStatus = 503;
-  vi.stubGlobal("fetch", async (url: string) => {
-    if (url.startsWith("/api/github")) return json(GITHUB);
-    if (url.startsWith("/api/mbta/alerts")) return json({ ok: true, alerts: [], upstreamMs: 40, fetchedAt: new Date().toISOString() });
-    if (url.startsWith("/api/contact")) return json({ ok: contactStatus === 200 }, contactStatus);
-    throw new Error(`unexpected fetch ${url}`);
-  });
+  vi.stubGlobal("fetch", fakeFetch);
 });
 afterEach(() => vi.unstubAllGlobals());
+
+// Apps are lazy chunks; load each once so the tests below see content on first render.
+beforeAll(async () => {
+  vi.stubGlobal("fetch", fakeFetch);
+  for (const id of LAUNCHPAD_ORDER) {
+    const { container, unmount } = render(<AppContent id={id} params={{}} setParams={() => {}} />);
+    await waitFor(() => expect(container.childElementCount).toBeGreaterThan(0));
+    unmount();
+  }
+  vi.unstubAllGlobals();
+});
 
 let errors: unknown[][];
 beforeEach(() => {

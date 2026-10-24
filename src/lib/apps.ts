@@ -19,7 +19,6 @@ export type AppMeta = {
   icon: string; // stroke SVG path, 24×24 viewBox
   color: string; // Launchpad / phone tile color
   size: { w: number; h: number };
-  ready: boolean; // false → "coming soon" window
   blurb: string; // one line for Help and the page <meta> description
 };
 
@@ -59,8 +58,7 @@ const app = (
   w: number,
   h: number,
   blurb: string,
-  ready = true,
-): AppMeta => ({ id, label, title: `${label}.app`, icon: ICONS[id], color, size: { w, h }, ready, blurb });
+): AppMeta => ({ id, label, title: `${label}.app`, icon: ICONS[id], color, size: { w, h }, blurb });
 
 export const APPS: Record<AppId, AppMeta> = {
   about: app("about", "About Me", "#2F6FED", 1080, 700, "Who I am: overview, journey, what drives me, what I am doing now."),

@@ -103,7 +103,7 @@ export function Window({ win, children }: { win: Win; children: ReactNode }) {
         className="flex h-[46px] flex-none touch-none select-none items-center gap-2 border-b border-hair px-4"
         style={{ cursor: win.maximized ? "default" : "grab" }}
       >
-        <div className="group flex gap-2">
+        <div className="group -mx-1.5 flex">
           <TrafficLight color="#F87171" label={`Close ${app.label}`} glyph="M8 8l8 8M16 8l-8 8" onClick={() => requestClose(win.id)} />
           <TrafficLight color="#FBBF24" label={`Minimize ${app.label}`} glyph="M7 12h10" onClick={() => requestMinimize(win.id)} />
           <TrafficLight
@@ -130,6 +130,7 @@ export function Window({ win, children }: { win: Win; children: ReactNode }) {
   );
 }
 
+// A 24px target (WCAG 2.5.8) around the 12px dot.
 function TrafficLight({ color, label, glyph, onClick }: { color: string; label: string; glyph: string; onClick: () => void }) {
   return (
     <button
@@ -137,12 +138,13 @@ function TrafficLight({ color, label, glyph, onClick }: { color: string; label: 
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="relative h-3 w-3 cursor-pointer rounded-full before:absolute before:-inset-2 before:content-['']"
-      style={{ background: color }}
+      className="flex h-6 w-6 cursor-pointer items-center justify-center"
     >
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="absolute inset-0 opacity-0 group-hover:opacity-100" stroke="rgba(0,0,0,0.6)" strokeWidth="3" fill="none">
-        <path d={glyph} />
-      </svg>
+      <span className="relative h-3 w-3 rounded-full" style={{ background: color }}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="absolute inset-0 opacity-0 group-hover:opacity-100" stroke="rgba(0,0,0,0.6)" strokeWidth="3" fill="none">
+          <path d={glyph} />
+        </svg>
+      </span>
     </button>
   );
 }

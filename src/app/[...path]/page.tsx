@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { OS } from "@/components/os/OS";
 import { Summary } from "@/components/seo/Summary";
+import { ogImageFor } from "@/lib/og";
 import { ALL_PATHS, descriptionFor, pathFor, routeFor, titleFor } from "@/lib/routes";
 
 // One page per app (/about, /terminal …) and per case study (/projects/<slug>).
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: { absolute: title },
     description,
     alternates: { canonical: url },
-    openGraph: { title, description, url },
+    openGraph: { title, description, url, images: ogImageFor(url, title) },
   };
 }
 

@@ -43,3 +43,6 @@ next-env.d.ts
 
 # private content drop: photos, PDFs, GIFs awaiting review (never commit)
 /content-inbox/
+
+# Private launch checklist
+/CONTENT-NEEDED.md
