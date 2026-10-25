@@ -21,6 +21,8 @@ export const TOUR_STEPS: { target?: string; title: string; text: string }[] = [
 type Box = { x: number; y: number; w: number; h: number };
 const PAD = 8;
 const CARD_W = 360;
+const CARD_H = 210; // the tallest step's card, for placement
+const clampX = (x: number, vw: number) => Math.min(Math.max(16, x), vw - CARD_W - 16);
 
 function useTargetBox(target: string | undefined): Box | null {
   const [box, setBox] = useState<Box | null>(null);
@@ -59,15 +61,20 @@ export function Tour({ step }: { step: number }) {
     return () => window.removeEventListener("keydown", onKey, true);
   }, [step, last, setTourStep, endTour]);
 
-  // Caption below the target if it's in the top half of the screen, else above; kept on screen.
+  // Caption below the target if it fits there, else above, else beside it (a tall
+  // target on a short screen, like the desktop icons on a laptop); kept on screen.
   const vw = typeof window === "undefined" ? 1440 : window.innerWidth;
   const vh = typeof window === "undefined" ? 900 : window.innerHeight;
-  const card = box
-    ? {
-        left: Math.min(Math.max(16, box.x + box.w / 2 - CARD_W / 2), vw - CARD_W - 16),
-        ...(box.y + box.h / 2 < vh / 2 ? { top: box.y + box.h + 14 } : { bottom: vh - box.y + 14 }),
-      }
-    : { left: Math.max(16, vw / 2 - CARD_W / 2), top: Math.max(60, vh / 2 - 120) };
+  const centred = { left: Math.max(16, vw / 2 - CARD_W / 2), top: Math.max(60, vh / 2 - CARD_H / 2) };
+  const card = !box
+    ? centred
+    : box.y + box.h + 14 + CARD_H <= vh - 16
+      ? { left: clampX(box.x + box.w / 2 - CARD_W / 2, vw), top: box.y + box.h + 14 }
+      : box.y - 14 - CARD_H >= 16
+        ? { left: clampX(box.x + box.w / 2 - CARD_W / 2, vw), bottom: vh - box.y + 14 }
+        : box.x + box.w + 14 + CARD_W <= vw - 16
+          ? { left: box.x + box.w + 14, top: Math.min(Math.max(16, box.y + box.h / 2 - CARD_H / 2), vh - CARD_H - 16) }
+          : centred;
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="tour-title" className="fixed inset-0 z-[9600]">
@@ -143,10 +150,11 @@ export function FirstVisitHint() {
     } catch {}
     setShow(false);
   };
+  // Top right (under the widgets where they show, beside them on short screens), clear of the name above the dock.
   return (
     <div
       role="status"
-      className="anim-fade absolute bottom-[104px] right-7 z-[8800] flex w-[300px] flex-col gap-3 rounded-2xl border border-line bg-popover p-4 shadow-[0_20px_50px_var(--shadow)] backdrop-blur-[24px]"
+      className="anim-fade absolute right-7 top-14 z-[8800] xl:top-[436px] xl:short:right-[324px] xl:short:top-14 flex w-[300px] flex-col gap-3 rounded-2xl border border-line bg-popover p-4 shadow-[0_20px_50px_var(--shadow)] backdrop-blur-[24px]"
     >
       <p className="text-sm leading-relaxed text-fg">New here? Take a 30-second tour of baibhavOS.</p>
       <div className="flex gap-2">

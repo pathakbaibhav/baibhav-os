@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Short screens: laptops at 125% scaling, 1366×768 panels, iPads in landscape. */
+@custom-variant short (@media (max-height: 680px));
+
 /* baibhavOS tokens. Dark is the default; <html data-theme="light"> flips them.
    --accent is set at runtime from Settings. */
 :root {

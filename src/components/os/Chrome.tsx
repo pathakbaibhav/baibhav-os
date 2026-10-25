@@ -198,11 +198,11 @@ export function DesktopIcons() {
   const launch = useLaunch();
   const focused = useOS((s) => s.focused);
   return (
-    <nav aria-label="Desktop" data-tour="desktop" className="absolute left-[26px] top-14 z-[5] hidden w-[110px] flex-col items-center gap-6 sm:flex">
+    <nav aria-label="Desktop" data-tour="desktop" className="absolute left-[26px] top-14 z-[5] hidden w-[110px] flex-col items-center gap-[clamp(10px,2.7vh,24px)] sm:flex short:gap-2">
       {DESKTOP_ICONS.map((id) => (
         <button key={id} type="button" onClick={() => launch(id)} className="group flex cursor-pointer flex-col items-center gap-2">
           <span
-            className="flex h-[66px] w-[66px] items-center justify-center rounded-[17px] border text-fg shadow-[0_6px_18px_var(--shadow)] transition-transform group-hover:-translate-y-0.5"
+            className="flex h-[66px] w-[66px] items-center justify-center rounded-[17px] border short:h-[52px] short:w-[52px] short:rounded-[14px] text-fg shadow-[0_6px_18px_var(--shadow)] transition-transform group-hover:-translate-y-0.5"
             style={{ background: "var(--tile)", borderColor: focused === id ? "var(--accent)" : "var(--hair)" }}
           >
             <Icon d={APPS[id].icon} size={30} strokeWidth={1.6} />

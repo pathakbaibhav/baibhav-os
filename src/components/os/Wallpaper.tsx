@@ -274,11 +274,18 @@ export function Wallpaper({ light, dim, scale }: { light: boolean; dim?: boolean
         }}
       >
         {circuit ? <CircuitStage light={light} /> : <Panes C={C} />}
-        <div style={{ position: "absolute", left: 0, right: 0, top: 650, textAlign: "center", color: C.name, opacity: dim ? 0.2 : 1 }}>
-          <div style={{ fontWeight: 800, fontSize: 112, lineHeight: 0.95, letterSpacing: "0.03em" }}>{PROFILE.name.toUpperCase()}</div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, letterSpacing: "0.24em", marginTop: 18, color: C.sub }}>
-            {PROFILE.role.toUpperCase()}
-          </div>
+      </div>
+      {/* The name sits on the real screen, not the cropped stage: always just above
+          the dock, sized to fit the width and the height (112px on a 1440×900 screen). */}
+      <div
+        style={{
+          position: "absolute", left: 16, right: 16, bottom: 108, textAlign: "center", color: C.name,
+          opacity: dim ? 0.2 : 1, transition: "filter 200ms", filter: dim ? "blur(3px)" : undefined,
+        }}
+      >
+        <div style={{ fontWeight: 800, fontSize: "min(7.8vw, 12.4vh)", lineHeight: 0.95, letterSpacing: "0.03em" }}>{PROFILE.name.toUpperCase()}</div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: "max(10px, min(1.25vw, 2vh))", letterSpacing: "0.24em", marginTop: "min(1.25vw, 2vh)", color: C.sub }}>
+          {PROFILE.role.toUpperCase()}
         </div>
       </div>
     </div>
