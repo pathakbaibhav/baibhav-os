@@ -20,7 +20,7 @@ export const FACTS: { k: string; v: string }[] = [
   { k: "based in", v: PROFILE.location },
   { k: "languages", v: "Python · Go · TypeScript" },
   { k: "status", v: "Open to SWE roles" },
-  { k: "background", v: "IoT · embedded systems" },
+  { k: "background", v: "Software Engineer · IoT" },
   { k: "education", v: "M.S. IoT, Northeastern" },
 ];
 
