@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export type AppProps = {
   params: Record<string, string>;
@@ -30,6 +30,20 @@ export function RailDoc({
   children: ReactNode;
 }) {
   const doc = useRef<HTMLDivElement>(null);
+  const nav = useRef<HTMLElement>(null);
+  // The highlighted rail item follows the scroll position; `active` only says where to jump.
+  const [current, setCurrent] = useState(active);
+  // While a jump is scrolling, the scroll spy stays quiet so the rail doesn't flicker through sections.
+  const jumping = useRef(0);
+
+  const jump = (id: string, behavior: ScrollBehavior) => {
+    const el = doc.current?.querySelector<HTMLElement>(`[data-section="${id}"]`);
+    if (!el || !doc.current) return;
+    setCurrent(id);
+    window.clearTimeout(jumping.current);
+    jumping.current = window.setTimeout(() => (jumping.current = 0), behavior === "smooth" ? 900 : 50);
+    doc.current.scrollTo({ top: el.offsetTop - 24, behavior });
+  };
 
   // Scroll to the requested section whenever it changes (rail click or a deep link).
   // On first open the first section stays at the top, so any header above it is visible.
@@ -38,14 +52,42 @@ export function RailDoc({
     const opening = first.current;
     first.current = false;
     if (opening && active === sections[0]?.id) return;
-    const el = doc.current?.querySelector<HTMLElement>(`[data-section="${active}"]`);
-    if (el && doc.current) doc.current.scrollTo({ top: el.offsetTop - 24, behavior: opening ? "auto" : "smooth" });
+    jump(active, opening ? "auto" : "smooth");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
+
+  // Scroll spy: the current section is the last one whose top has passed the upper third of the view.
+  useEffect(() => {
+    const box = doc.current;
+    if (!box) return;
+    const onScroll = () => {
+      if (jumping.current) return;
+      const els = [...box.querySelectorAll<HTMLElement>("[data-section]")];
+      if (!els.length) return;
+      let id = els[0].dataset.section!;
+      if (box.scrollTop + box.clientHeight >= box.scrollHeight - 4) id = els[els.length - 1].dataset.section!;
+      else for (const el of els) if (el.offsetTop - 24 <= box.scrollTop + box.clientHeight / 3) id = el.dataset.section!;
+      setCurrent(id);
+    };
+    box.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      box.removeEventListener("scroll", onScroll);
+      window.clearTimeout(jumping.current);
+    };
+  }, []);
+
+  // In narrow windows the rail is a row of chips; keep the highlighted chip in view.
+  useEffect(() => {
+    const row = nav.current;
+    const chip = row?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!row || !chip || row.scrollWidth <= row.clientWidth) return;
+    row.scrollTo({ left: chip.offsetLeft - 12, behavior: "smooth" });
+  }, [current]);
 
   return (
     <div className="@container flex h-full flex-col @3xl:flex-row">
       <nav
+        ref={nav}
         aria-label="Sections"
         className="flex flex-none gap-1 overflow-x-auto border-b border-hair px-3 py-2 @3xl:w-[210px] @3xl:flex-col @3xl:gap-0.5 @3xl:border-b-0 @3xl:border-r @3xl:px-3.5 @3xl:py-6"
       >
@@ -54,11 +96,11 @@ export function RailDoc({
           <button
             key={s.id}
             type="button"
-            aria-current={active === s.id ? "true" : undefined}
-            onClick={() => onPick(s.id)}
+            aria-current={current === s.id ? "true" : undefined}
+            onClick={() => (s.id === active ? jump(s.id, "smooth") : onPick(s.id))}
             className="flex min-h-10 flex-none cursor-pointer items-center gap-3 whitespace-nowrap rounded-[9px] px-3 text-left text-sm"
             style={
-              active === s.id
+              current === s.id
                 ? { background: "color-mix(in srgb, var(--accent) 14%, transparent)", color: "var(--accent)" }
                 : { color: "var(--fg2)" }
             }
