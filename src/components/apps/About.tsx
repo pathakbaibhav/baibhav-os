@@ -2,19 +2,23 @@
 
 import Image from "next/image";
 import { CURRENTLY, DRIVES, FACTS, JOURNEY, OUTSIDE, PROFILE } from "@/data/profile";
+import { PROJECTS } from "@/data/projects";
 import { commands } from "@/lib/commands";
+import { useOS } from "@/lib/store";
 import { RailDoc, Section, btnGhost, btnSolid, type AppProps } from "./ui";
 
 const SECTIONS = [
   { id: "overview", label: "Overview" },
+  { id: "how", label: "How I work" },
+  { id: "work", label: "Recent work" },
   { id: "journey", label: "Journey" },
-  { id: "drives", label: "What drives me" },
   { id: "currently", label: "Currently" },
   { id: "outside", label: "Outside work" },
   { id: "contact", label: "Contact" },
 ];
 
 export function About({ params, setParams }: AppProps) {
+  const open = useOS((s) => s.open);
   return (
     <RailDoc
       sections={SECTIONS}
@@ -49,6 +53,11 @@ export function About({ params, setParams }: AppProps) {
               and the automation that keeps teams moving. I grew up helping my dad, an electrical engineer, take apart whatever had
               stopped working, and I still build software the way he fixes hardware: predictable, measurable and hard to break.
             </p>
+            <p className="text-base leading-[1.7] text-fg2">
+              Today I&apos;m a Senior Software Engineer at Zoppler Systems in Bangalore, working in C++ and Python. Before that I
+              built control-plane services in Boston, did an M.S. in IoT at Northeastern, and spent nearly three years at PPD
+              (Thermo Fisher) automating work for 10,000+ people.
+            </p>
             <dl className="mt-1.5 grid gap-x-6 @xl:grid-cols-2">
               {FACTS.map((f) => (
                 <div key={f.k} className="flex justify-between gap-3 border-t border-hair py-2.5 text-sm">
@@ -61,7 +70,38 @@ export function About({ params, setParams }: AppProps) {
         </div>
       </Section>
 
-      <Section id="journey" n={2} title="Journey">
+      <Section id="how" n={2} title="How I work">
+        <div className="mt-4 grid gap-3.5 @2xl:grid-cols-2">
+          {DRIVES.map((d) => (
+            <div key={d.t} className="flex flex-col gap-2 rounded-2xl border border-line bg-card p-5">
+              <div className="text-[17px] font-semibold">{d.t}</div>
+              <div className="text-sm leading-relaxed text-fg2">{d.x}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section id="work" n={3} title="Recent work">
+        <ul className="mt-4 grid gap-3 @2xl:grid-cols-2">
+          {PROJECTS.map((p) => (
+            <li key={p.slug}>
+              <button
+                type="button"
+                onClick={() => open("projects", { sel: p.num, view: "case" })}
+                className="flex h-full w-full cursor-pointer flex-col gap-1.5 rounded-2xl border border-line bg-card p-5 text-left hover:border-accent"
+              >
+                <span className="font-mono text-xs text-muted">
+                  {p.num} · {p.cat} · {p.year}
+                </span>
+                <span className="font-semibold">{p.title}</span>
+                <span className="text-sm leading-relaxed text-fg2">{p.tagline}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section id="journey" n={4} title="Journey">
         <h2 className="mb-6 mt-2 text-[26px] font-bold">From games with my dad to control planes.</h2>
         <ol>
           {JOURNEY.map((j) => (
@@ -80,29 +120,22 @@ export function About({ params, setParams }: AppProps) {
         </ol>
       </Section>
 
-      <Section id="drives" n={3} title="What drives me">
-        <div className="mt-4 grid gap-3.5 @2xl:grid-cols-3">
-          {DRIVES.map((d) => (
-            <div key={d.t} className="flex flex-col gap-2 rounded-2xl border border-line bg-card p-5">
-              <div className="text-[17px] font-semibold">{d.t}</div>
-              <div className="text-sm leading-relaxed text-fg2">{d.x}</div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section id="currently" n={4} title="Currently">
-        <dl className="mt-3.5">
+      <Section id="currently" n={5} title="Currently">
+        <h2 className="mb-5 mt-2 text-[26px] font-bold">What&apos;s on my plate right now.</h2>
+        <dl className="grid gap-3 @2xl:grid-cols-2">
           {CURRENTLY.map((c) => (
-            <div key={c.k} className="flex gap-5 border-b border-hair py-3 text-[15px]">
-              <dt className="w-[110px] flex-none pt-0.5 font-mono text-xs text-muted">{c.k}</dt>
-              <dd>{c.v}</dd>
+            <div key={c.k} className="flex flex-col gap-1.5 rounded-2xl border border-line bg-card p-5 last:@2xl:col-span-2">
+              <dt className="flex items-center gap-2 font-mono text-xs text-muted">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
+                {c.k}
+              </dt>
+              <dd className="text-[15px] leading-relaxed">{c.v}</dd>
             </div>
           ))}
         </dl>
       </Section>
 
-      <Section id="outside" n={5} title="Outside work">
+      <Section id="outside" n={6} title="Outside work">
         <div className="mt-4 flex flex-col gap-4">
           <Image
             src={OUTSIDE.photo.src}
@@ -112,7 +145,21 @@ export function About({ params, setParams }: AppProps) {
             sizes="(min-width: 1000px) 760px, 100vw"
             className="w-full max-w-[760px] rounded-2xl border border-line object-cover"
           />
+          <h2 className="mt-2 text-[26px] font-bold">Kitchen, mountains and race weekends.</h2>
           <p className="max-w-[60ch] text-base leading-[1.7] text-fg2">{OUTSIDE.text}</p>
+          <div className="grid gap-3.5 @2xl:grid-cols-2">
+            {OUTSIDE.cards.map((c) => (
+              <div key={c.t} className="flex flex-col gap-2 rounded-2xl border border-line bg-card p-5 last:@2xl:col-span-2">
+                <div className="flex items-center gap-2.5 text-[17px] font-semibold">
+                  <span className="text-[22px] leading-none" aria-hidden>
+                    {c.e}
+                  </span>
+                  {c.t}
+                </div>
+                <div className="text-sm leading-relaxed text-fg2">{c.x}</div>
+              </div>
+            ))}
+          </div>
           <ul className="flex flex-wrap gap-2">
             {OUTSIDE.interests.map((i) => (
               <li key={i} className="rounded-full border border-line px-3 py-1 text-[13px]">{i}</li>
@@ -121,7 +168,7 @@ export function About({ params, setParams }: AppProps) {
         </div>
       </Section>
 
-      <Section id="contact" n={6} title="Contact">
+      <Section id="contact" n={7} title="Contact">
         <h2 className="mb-4 mt-2 text-[26px] font-bold">Let&apos;s build something that stays up.</h2>
         <div className="flex flex-wrap gap-2.5">
           <a href={`mailto:${PROFILE.email}`} className={btnSolid}>{PROFILE.email}</a>

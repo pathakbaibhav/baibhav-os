@@ -61,7 +61,7 @@ const app = (
 ): AppMeta => ({ id, label, title: `${label}.app`, icon: ICONS[id], color, size: { w, h }, blurb });
 
 export const APPS: Record<AppId, AppMeta> = {
-  about: app("about", "About Me", "#2F6FED", 1080, 700, "Who I am: overview, journey, what drives me, what I am doing now."),
+  about: app("about", "About Me", "#2F6FED", 1080, 700, "Who I am: how I work, recent work, journey and what I am doing now."),
   projects: app("projects", "Projects", "#E8893C", 1120, 700, "Filterable index of my work, with a full case study for each project."),
   resume: app("resume", "Resume", "#D9A43A", 1000, 700, "My resume: summary, experience, projects, skills and education."),
   skills: app("skills", "Skills", "#8B6CF0", 1000, 660, "Every tool I use, and the jobs and projects where I used it."),

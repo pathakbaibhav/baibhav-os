@@ -85,10 +85,11 @@ function About() {
       <ul>{FACTS.map((f) => <li key={f.k}>{f.k}: {f.v}</li>)}</ul>
       <h3>Journey</h3>
       <ol>{JOURNEY.filter((j) => !j.year.startsWith("[")).map((j) => <li key={j.title}>{j.year}: {j.title}. {j.text}</li>)}</ol>
-      <h3>What drives me</h3>
+      <h3>How I work</h3>
       <ul>{DRIVES.map((d) => <li key={d.t}>{d.t}: {d.x}</li>)}</ul>
       <h3>Outside work</h3>
       <p>{OUTSIDE.text}</p>
+      <ul>{OUTSIDE.cards.map((c) => <li key={c.t}>{c.t}: {c.x}</li>)}</ul>
     </section>
   );
 }

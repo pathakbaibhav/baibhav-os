@@ -68,22 +68,67 @@ export const JOURNEY: { year: string; title: string; text: string }[] = [
   },
 ];
 
+/** About → How I work. */
 export const DRIVES: { t: string; x: string }[] = [
-  { t: "Systems that stay up", x: "I care about the boring numbers: latency, uptime and how quickly something recovers." },
-  { t: "Hardware meets software", x: "Hardware was my dad's world and caught my interest early; software has always been my love. IoT is where the two meet." },
-  { t: "Automating the toil", x: "If a team does something by hand twice, I want a script, a pipeline or an API for it." },
+  {
+    t: "Systems that stay up",
+    x: "I care about the boring numbers: latency, uptime and how quickly something recovers. A feature isn't done when it works on my machine; it's done when it survives a bad deploy, a slow dependency and a Monday morning.",
+  },
+  {
+    t: "Measure, then optimise",
+    x: "Before I change anything I want a number for it: a benchmark, a log, a dashboard. It keeps me honest, and it turns \"I think it's faster\" into \"it's 20% faster\".",
+  },
+  {
+    t: "Automating the toil",
+    x: "If a team does something by hand twice, I want a script, a pipeline or an API for it. At PPD that habit became 50+ tools that thousands of people used every day.",
+  },
+  {
+    t: "Hardware meets software",
+    x: "Hardware was my dad's world and caught my interest early; software has always been my love. IoT is where the two meet, and it taught me to respect memory, power and the network.",
+  },
 ];
 
+/** About → Currently. */
 export const CURRENTLY: { k: string; v: string }[] = [
-  { k: "building", v: "Just starting a smart expense and investment tracker" },
-  { k: "learning", v: "System design and AI, for my work as a Senior Software Engineer at Zoppler Systems" },
-  { k: "reading", v: "Manga, and thriller and suspense novels" },
-  { k: "looking for", v: "Backend, platform and SWE roles" },
+  { k: "building", v: "A smart expense and investment tracker, so future me finally knows where all the money went." },
+  { k: "learning", v: "System design and AI at Zoppler Systems. Drawing a lot of boxes and arrows, and the arrows are getting better." },
+  { k: "reading", v: "Manga and thrillers, firmly in the \"just one more chapter\" phase at 1 a.m." },
+  { k: "watching", v: "Every F1 race weekend, and as much football as the calendar allows." },
+  { k: "cooking", v: "New recipes on weekends, with music on loud. The success rate beats my first deploys." },
+  { k: "planning", v: "The next trip to the mountains. The packing list is version-controlled, obviously." },
+  { k: "looking for", v: "Backend, platform and SWE roles. My inbox is open." },
 ];
 
 /** About → Outside work. */
 export const OUTSIDE = {
-  text: "Away from the keyboard I cook, travel whenever I get the chance, and read: manga, plus thriller and suspense novels.",
-  interests: ["Cooking", "Travelling", "Manga", "Thrillers & suspense"],
+  text: "Away from the keyboard you'll find me in the kitchen with music on, planning the next trip to the mountains, or arguing about F1 and football. Somewhere in between there's always a manga or a thriller on the go.",
+  cards: [
+    {
+      e: "🍳",
+      t: "Cooking & music",
+      x: "My therapy. Something on the stove, a playlist on loud, and the day's bugs quietly fade out. Cooking is the one place where \"it works on my machine\" is all that matters.",
+    },
+    {
+      e: "🏔️",
+      t: "Mountains",
+      x: "Travel anywhere is good; the mountains are where I find peace. Cold air, no notifications and a view that makes every production incident feel very small.",
+    },
+    {
+      e: "🏎️",
+      t: "Formula 1",
+      x: "Race weekends are blocked on my calendar. You can love Max Verstappen or hate him, but you can't argue with the brilliance. Also, a pit stop is the best latency benchmark in sport.",
+    },
+    {
+      e: "⚽",
+      t: "Football",
+      x: "Real Madrid, through and through. Champions League nights are non-negotiable, and nothing beats a late Madrid comeback. Cristiano Ronaldo is the GOAT: the four Champions Leagues in white, the goals and a work ethic every engineer could learn from. I'm open to discussing literally anything else. ¡Hala Madrid!",
+    },
+    {
+      e: "📚",
+      t: "Reading",
+      x: "Manga, plus thriller and suspense novels: anything with a twist I don't see coming, which is harder than it sounds after years of reading stack traces.",
+    },
+  ],
+  interests: ["Cooking", "Music", "Mountains", "Travelling", "Formula 1", "Football", "Real Madrid", "Manga", "Thrillers & suspense"],
   photo: { src: "/images/snow.webp", alt: "Baibhav smiling by a wooden fence in front of a snowy river and pine forest", w: 1600, h: 900 },
 };
