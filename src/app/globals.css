@@ -112,6 +112,9 @@ body {
 .prose-os pre { font-family: var(--font-mono); font-size: 14px; line-height: 1.6; background: #05070b; color: #c9cfda; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; overflow-x: auto; }
 .prose-os pre code { background: none; border: 0; padding: 0; }
 .prose-os blockquote { border-left: 2px solid var(--accent); padding-left: 1em; color: var(--muted); }
+.prose-os table { width: 100%; border-collapse: collapse; font-size: 15px; display: block; overflow-x: auto; }
+.prose-os th, .prose-os td { border-bottom: 1px solid var(--hair); padding: 8px 12px 8px 0; text-align: left; vertical-align: top; }
+.prose-os th { color: var(--fg); font-weight: 600; white-space: nowrap; }
 .prose-os img { border-radius: 12px; border: 1px solid var(--line); }
 
 @keyframes win-open {

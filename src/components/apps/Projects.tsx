@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { PROJECTS, PROJECT_FILTERS, filterProjects, type Project, type ProjectFilter } from "@/data/projects";
+import { useOS } from "@/lib/store";
 import { Stat, btnGhost, btnSolid, type AppProps } from "./ui";
 
 const statusClass = (p: Project) =>
@@ -197,9 +198,18 @@ function CaseStudyView({ project: p, onBack, onNext }: { project: Project; onBac
           <div className="flex flex-col gap-4">
             <p className="text-[17px] leading-[1.75] text-fg2">{p.desc}</p>
             <div className="grid grid-cols-2 gap-3">{p.metrics.map((m) => <Stat key={m.l} v={m.v} l={m.l} />)}</div>
-            <p className="rounded-[14px] border border-dashed border-line p-5 font-mono text-[13px] text-muted">
-              [Full case study coming: demo, architecture, the story and what didn&apos;t work.]
-            </p>
+            {p.log ? (
+              <div className="flex flex-col items-start gap-3 rounded-[14px] border border-dashed border-line p-5">
+                <p className="font-mono text-[13px] text-muted">Being built in public. The case study comes when there&apos;s something to show.</p>
+                <button type="button" className={`${btnGhost} cursor-pointer`} onClick={() => useOS.getState().open("writing", { post: p.log! })}>
+                  Read the build log →
+                </button>
+              </div>
+            ) : (
+              <p className="rounded-[14px] border border-dashed border-line p-5 font-mono text-[13px] text-muted">
+                [Full case study coming: demo, architecture, the story and what didn&apos;t work.]
+              </p>
+            )}
           </div>
         )}
 

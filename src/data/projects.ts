@@ -33,6 +33,8 @@ export type Project = {
   metrics: { v: string; l: string }[];
   stack: string[];
   source?: string;
+  /** Slug of a Writing post that follows the build, for projects still in progress. */
+  log?: string;
   caseStudy?: CaseStudy;
 };
 
@@ -287,6 +289,25 @@ export const PROJECTS: Project[] = [
       ],
       builtWith: ["Next.js 15", "React 19", "TypeScript", "Tailwind CSS 4", "Zustand", "Vitest", "Testing Library", "GitHub Actions"],
     },
+  },
+  {
+    num: "06",
+    slug: "expense-tracker",
+    title: "Smart Expense & Investment Tracker",
+    cat: "Full-stack",
+    year: "2026",
+    status: "In progress",
+    featured: true,
+    hue: "#F472B6",
+    tagline: "Spending and investing in one place, so the money finally adds up.",
+    desc: "My current project, being built in public: Indian bank SMS, statements and mutual fund CAS turned into one clean ledger, parsed by regex templates first and a local LLM second, with a clear monthly picture of spending and investments.",
+    metrics: [
+      { v: "₹0", l: "to build and run" },
+      { v: "Local AI", l: "bank messages never leave my machine" },
+    ],
+    stack: ["Python", "FastAPI", "PostgreSQL", "pgvector", "Ollama", "Next.js"],
+    source: "https://github.com/pathakbaibhav/smart-expense-investment-tracker",
+    log: "money-is-harder-than-it-looks",
   },
 ];
 

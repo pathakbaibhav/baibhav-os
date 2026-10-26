@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ALL_PATHS, descriptionFor, pathFor, routeFor, titleFor } from "./routes";
 import { LAUNCHPAD_ORDER } from "./apps";
 import { PROJECTS } from "@/data/projects";
+import { POSTS } from "@/data/writing";
 
 describe("routes", () => {
   it("the desktop is /", () => {
@@ -36,7 +37,7 @@ describe("routes", () => {
   });
 
   it("every prerendered path round-trips", () => {
-    expect(ALL_PATHS).toHaveLength(LAUNCHPAD_ORDER.length + PROJECTS.length);
+    expect(ALL_PATHS).toHaveLength(LAUNCHPAD_ORDER.length + PROJECTS.length + POSTS.length);
     for (const segs of ALL_PATHS) {
       const r = routeFor(segs);
       expect(r).toBeTruthy();

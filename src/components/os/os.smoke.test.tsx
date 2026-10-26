@@ -325,13 +325,13 @@ describe("desktop smoke test", () => {
     expect(errors).toEqual([]);
   });
 
-  it("Arcade starts from the keyboard and Writing lists what's coming", () => {
+  it("Arcade starts from the keyboard and Writing lists the posts", () => {
     render(<OS initial={{ app: "arcade", params: {} }} />);
     const board = screen.getByRole("application", { name: /Packet Snake board/ });
     act(() => fireEvent.keyDown(board, { key: " " }));
     expect(screen.queryByRole("button", { name: "Start" })).toBeNull();
     act(() => useOS.getState().open("writing"));
-    expect(screen.getByRole("region", { name: "Coming soon" }).textContent).toContain("micro-batching");
+    expect(screen.getByRole("button", { name: /micro-batching took the ASL API/ })).toBeTruthy();
     expect(errors).toEqual([]);
   });
 
